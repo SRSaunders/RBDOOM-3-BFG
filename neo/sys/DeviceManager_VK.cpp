@@ -925,14 +925,6 @@ bool DeviceManager_VK::createDevice()
 	enablePModeImmediate = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eImmediate ) != surfacePModes.end();
 	enablePModeFifoRelaxed = find( surfacePModes.begin(), surfacePModes.end(), vk::PresentModeKHR::eFifoRelaxed ) != surfacePModes.end();
 
-	// SRS - Determine maxPushConstantSize for Vulkan device
-	if( r_useVulkanPushConstants.GetBool() )
-	{
-		vk::PhysicalDeviceProperties deviceProperties;
-		m_VulkanPhysicalDevice.getProperties( &deviceProperties );
-		m_DeviceParams.maxPushConstantSize = Min( deviceProperties.limits.maxPushConstantsSize, nvrhi::c_MaxPushConstantSize );
-	}
-
 	// stash the renderer string
 	auto prop = m_VulkanPhysicalDevice.getProperties();
 	m_RendererString = std::string( prop.deviceName.data() );
@@ -1225,6 +1217,13 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	if( m_DeviceParams.enableNvrhiValidationLayer )
 	{
 		m_ValidationLayer = nvrhi::validation::createValidationLayer( m_NvrhiDevice );
+	}
+
+	// SRS - Determine maxPushConstantSize for Vulkan device
+	if( r_useVulkanPushConstants.GetBool() )
+	{
+		auto deviceProperties = m_VulkanPhysicalDevice.getProperties();
+		m_DeviceParams.maxPushConstantSize = Min( deviceProperties.limits.maxPushConstantsSize, nvrhi::c_MaxPushConstantSize );
 	}
 
 	CHECK( createSwapChain() );
