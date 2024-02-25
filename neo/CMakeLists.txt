@@ -443,6 +443,9 @@ set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
 add_subdirectory(${NVRHI_DIR})
 add_definitions(-DUSE_NVRHI)
 
+set(SHADERMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/ShaderMake)
+add_subdirectory(${SHADERMAKE_DIR})
+
 if(USE_DX11)
 	find_package(FXC REQUIRED)
 endif()
@@ -457,6 +460,7 @@ if(USE_VULKAN)
 endif()
 
 include_directories(${NVRHI_DIR}/include)
+include_directories(${SHADERMAKE_DIR}/include)
 
 include_directories("libs/optick")
 
@@ -494,12 +498,6 @@ file(GLOB RENDERER_PASSES_INCLUDES renderer/Passes/*.h)
 file(GLOB RENDERER_PASSES_SOURCES renderer/Passes/*.cpp)
 
 file(GLOB RENDERER_SMAA_INCLUDES renderer/SMAA/*.h)
-
-file(GLOB RENDERER_OPENGL_INCLUDES renderer/OpenGL/*.h)
-file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
-
-file(GLOB RENDERER_VULKAN_INCLUDES renderer/Vulkan/*.h)
-file(GLOB RENDERER_VULKAN_SOURCES renderer/Vulkan/*.cpp)
 
 file(GLOB RENDERER_NVRHI_INCLUDES renderer/NVRHI/*.h)
 file(GLOB RENDERER_NVRHI_SOURCES renderer/NVRHI/*.cpp)
@@ -1096,14 +1094,8 @@ source_group("renderer\\Passes" FILES ${RENDERER_PASSES_SOURCES})
 source_group("renderer\\DXT" FILES ${RENDERER_DXT_INCLUDES})
 source_group("renderer\\DXT" FILES ${RENDERER_DXT_SOURCES})
 
-source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_INCLUDES})
-source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_SOURCES})
-
 source_group("renderer\\NVRHI" FILES ${RENDERER_NVRHI_INCLUDES})
 source_group("renderer\\NVRHI" FILES ${RENDERER_NVRHI_SOURCES})
-
-source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_INCLUDES})
-source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_SOURCES})
 
 source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
 
@@ -1430,11 +1422,6 @@ if(MSVC)
 	if(USE_DX12)
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
-
-		# RB: TODO REMOVE
-		set(OpenGL_LIBRARIES
-			opengl32
-			glu32)
 	endif()
 	
 	if(OPENAL)
@@ -1522,9 +1509,10 @@ if(MSVC)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder_SSE2.cpp)
 		
-		if(USE_VULKAN)
-			list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager_VK.cpp)
-		endif()
+		# SRS - Exclusion no longer needed with updated nvrhi CMakeLists.txt that makes Vulkan-Headers private
+		#if(USE_VULKAN)
+		#	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager_VK.cpp)
+		#endif()
 	
 		#foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 		#	message(STATUS "-include precompiled.h for ${src_file}")
@@ -1669,9 +1657,10 @@ else()
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder_SSE2.cpp)
 		
-		if(USE_VULKAN)
-			list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager_VK.cpp)
-		endif()
+		# SRS - Exclusion no longer needed with updated nvrhi CMakeLists.txt that makes Vulkan-Headers private
+		#if(USE_VULKAN)
+		#	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/DeviceManager_VK.cpp)
+		#endif()
 
 		foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 			#message(STATUS "-include precompiled.h for ${src_file}")
@@ -1743,8 +1732,8 @@ else()
 
 		# add macOS bundle properties to executable
 		set(MACOSX_BUNDLE_BUNDLE_NAME RBDoom-3-BFG)
-		set(MACOSX_BUNDLE_BUNDLE_VERSION 1.5.0)
-		set(MACOSX_BUNDLE_SHORT_VERSION_STRING 1.5.0)
+		set(MACOSX_BUNDLE_BUNDLE_VERSION 1.6.0)
+		set(MACOSX_BUNDLE_SHORT_VERSION_STRING 1.6.0)
 		set(MACOSX_BUNDLE_ICON_FILE Doom3BFG.icns)
 		set(MACOSX_BUNDLE_INFO_STRING "")					# to be added by author if desired
 		set(MACOSX_BUNDLE_COPYRIGHT "")						# to be added by author if desired
@@ -1831,7 +1820,9 @@ endif()
 
 # needs to come after nvrhi_d3d11 etc. for link order
 target_link_libraries(RBDoom3BFG nvrhi)
+target_link_libraries(RBDoom3BFG ShaderMakeBlob)
 
 add_subdirectory(shaders)
+add_dependencies(Shaders ShaderMake)
 add_dependencies(RBDoom3BFG Shaders)
 
