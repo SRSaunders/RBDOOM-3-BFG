@@ -526,14 +526,14 @@ private:
 };
 
 // data is RGBA
-void	LoadPNG( const char* filename, unsigned char** pic, int* width, int* height, ID_TIME_T* timestamp );
+void	LoadSTB_RGBA8( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp );
 
 void	LoadTGA( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp );
 void	R_WriteTGA( const char* filename, const byte* data, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
 // data is in top-to-bottom raster order unless flipVertical is set
 
 // RB begin
-void	R_WritePNG( const char* filename, const byte* data, int bytesPerPixel, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
+void	R_WritePNG( const char* filename, const byte* data, int bytesPerPixel, int width, int height, const char* basePath = "fs_savepath" );
 void	R_WriteEXR( const char* filename, const void* data, int channelsPerPixel, int width, int height, const char* basePath = "fs_savepath" );
 // RB end
 

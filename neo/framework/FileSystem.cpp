@@ -30,8 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-#include "Unzip.h"
-#include "Zip.h"
+#if !defined( TYPEINFOPROJECT ) && !defined( DMAP )
+	#include "Unzip.h"
+	#include "Zip.h"
+#endif
 
 #ifdef WIN32
 	#include <io.h>	// for _read
@@ -2656,14 +2658,31 @@ void idFileSystemLocal::ExtractResourceFile_f( const idCmdArgs& args )
 {
 	if( args.Argc() < 3 )
 	{
-		common->Printf( "Usage: extractResourceFile <resource file> <outpath> <copysound>\n" );
+		common->Printf( "Usage: extractResourceFile <resource file> <outpath> <copysound> <all>\n" );
 		return;
 	}
 
 	idStr filename =  args.Argv( 1 );
 	idStr outPath = args.Argv( 2 );
-	bool copyWaves = ( args.Argc() > 3 );
-	idResourceContainer::ExtractResourceFile( filename, outPath, copyWaves );
+	bool copyWaves = false;
+	bool allFileTypes = false;
+
+	for( int i = 1; i < args.Argc(); i++ )
+	{
+		idStr option = args.Argv( i );
+		option.StripLeading( '-' );
+
+		if( option.Icmp( "copysound" ) == 0 )
+		{
+			copyWaves = true;
+		}
+		else if( option.Icmp( "all" ) == 0 )
+		{
+			allFileTypes = true;
+		}
+	}
+
+	idResourceContainer::ExtractResourceFile( filename, outPath, copyWaves, allFileTypes );
 }
 
 /*
@@ -3298,7 +3317,9 @@ idFile* idFileSystemLocal::GetResourceFile( const char* fileName, bool memFile )
 		{
 			idLib::Printf( "RES: loading file %s\n", rc.filename.c_str() );
 		}
+
 		idFile_InnerResource* file = new idFile_InnerResource( rc.filename, resourceFiles[ rc.containerIndex ]->resourceFile, rc.offset, rc.length );
+
 		// DG: add parenthesis to make sure this block is only entered when file != NULL - bug found by clang.
 		if( file != NULL && ( ( memFile || rc.length <= resourceBufferAvailable ) || rc.length < 8 * 1024 * 1024 ) )
 		{

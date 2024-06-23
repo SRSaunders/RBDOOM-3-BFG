@@ -19,6 +19,118 @@ TBD - RBDOOM-3-BFG 1.6.0
 _______________________________
 
 
+## .plan - June 22, 2024
+
+Some people requested a separate oldschool map compiler so they don't have to open the engine every time they compile a map. Now you can just hit a button in TrenchBroomBFG. 
+The version also dumps a lot of legacy image loading code like the JPG and PNG libraries and replaces those with STB image header only libs like it is handled in the dhewm3 source port.
+
+rbdmap.exe is not only dmap but also provides the collision manager and AAS builder (runAAS cmd).
+So like in the embedded dmap cmd the .cm files and .aas files are also automatically built.
+
+rbdmap.exe uses Imtui with pdcurses on Windows to have features a like progress bar and just the old terminal output on Linux.
+
+Changelog:
+
+* Added rbdmap -nogui option because pdcurses does not work with TrenchBroom
+
+* Drastic dmap speed boost by reducing prints like in q3map
+
+* Added collision manager and AAS builder to dmap
+
+* Replaced JPG/PNG code with stb_image snippets from dhewm3
+
+* Allow static glTF2 models to be inlined in dmap and kicked unused Collada DAE support
+
+
+## .plan - June 14, 2024
+
+This is a preview build that solves several issues with TrenchBroom and the required convertMapToValve220 command.
+
+Light entities that have models get automatically grouped to new light groups and the models are moved to new func_static entities.
+Neither the vanilla Doom 3 ingame light editor which editLights is based on nor TrenchBroom supported editing those lights properly and this is the proper workaround to work with TrenchBroom's clean architecture where point entities can't have optional brushes/patches.
+
+Changelog:
+
+* Allow scalable models like in Quake 3 using modelscale/modelscale_vec keys in TrenchBroom
+
+* Support linked group instances by TrenchBroom
+
+* Restored internal envprobe fallback if map has no envprobes
+
+* Bumped savegame version for idLight::modelTarget
+
+* Split lights with brushes/patches into light groups for TrenchBroom
+
+* Fixed leaking problems when converting a map to the Valve 220 format
+
+* New makeMaterials `<folder>` cmd that generates a .mtr file based on PBR naming conventions
+
+* extractResourceFile copysound automatically converts .idwav files to .wav files in the ADPCM format
+
+* Added options "all" and "copysound" to extractResourceFile cmd
+
+* Save .bcanim files under generated/cameraanim/. close #866
+
+* Reduced Spam and crashes when r_useValidationLayers 2 was enabled (Thanks to Stephen Saunders)
+
+* Fixed crash with Vulkan when using the colorProcess shader (bathroom mirror horror effect)
+
+
+## .plan - April 24, 2024
+
+Cudos to Stephen Saunders for most changes in this build. NVRHI was updated to the version on 25 February.
+The shader compiling part was also split out of NVRHI into a new ShaderMake tool by Nvidia.
+
+You can get Blender lights to work with the glTF workflow without the need to place fake light entities in Blender.
+VR options are stripped from the settings menu and com_showFPS > 2 show the VRAM memory usage.
+
+Optick has been improved for macOS and Vulkan and otherwise most changes are developer related.
+The renderdemo code has been removed and if you compile the engine without Classic Doom support then you will bypass the startup screen and get into the main menu immediatly.
+
+Changelog:
+
+* Read Blender lights directly through the KHR_lights_punctual glTF extension
+
+* Don't let VR options of other VR builds to break rendering of the non-VR master
+
+* Fix testVideo to check for viewDef->viewEntitys (i.e. 3D/2D) not console state
+
+* When playing testVideos, skip sRGB to linear conversion only when console active (i.e. 2D)
+
+* Check for valid allocations before freeing Bink Decoder bundles
+
+* Renamed DX12/Vulkan specific cvars with a r_vk/r_dx prefix
+
+* Set r_maxFrameLatency max value constraint to NUM_FRAME_DATA
+
+* Change r_maxFrameLatency cvar name and set to default value of 2 frames
+
+* Implement m_frameLatencyWaitableObject sync for reduced DX12 frame latency
+
+* Extend Optick to support data tags on custom storage events
+
+* Added CMake -DRETAIL option for shipping builds on Github/ModDB
+
+* Skip startup if not compiled with Doom Classic support, closes #874
+
+* More renderdemo code removed
+
+* Killed hard to maintain renderdemo code
+
+* Fix for cinematic audio when playing Bink video files with ffmpeg decoder, improve ffmpeg a/v resync
+
+* Show VRAM memory usage with com_showFPS > 2 in separate line
+
+* Correct some uint64 types and add Optick frame tag for DX12 / Vulkan Present()
+
+* Optick: Eliminate need for blocking sleep wait at start of Vulkan clock sync
+
+* Optick: Remove blocking sleep wait at start of Vulkan clock synchronization
+
+* Complete Optick instrumentation and align with HUD GPU timers
+
+
+
 ## .plan - January 20, 2024
 
 Cudos to Stephen Saunders for this build and to reeFridge for finding the issue.

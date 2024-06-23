@@ -60,7 +60,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.color = pc.rpUser1; // targetHue
 
 	result.texcoord0.x = vertex.texcoord.x;
-	result.texcoord0.y = 1.0f - vertex.texcoord.y;
+	result.texcoord0.y = /*1.0f -*/ vertex.texcoord.y;
 
 	result.texcoord0.z = pc.rpUser0.x; // fraction
 }

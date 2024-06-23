@@ -449,6 +449,8 @@ Recommended in this case is `cmake-vs2022-win64-no-ffmpeg.bat`
 		> # DXC compiler
 		> PATH="~/dxc-artifacts/bin:$PATH"
 
+	As an alternative to modifying your PATH, you can add -DDXC\_CUSTOM_PATH=\<path-to-dxc-binary> to the CMake options.
+
 2. You need the following dependencies in order to compile RBDoom3BFG with all features:
 
 	On Debian or Ubuntu:
@@ -664,6 +666,7 @@ postLoadExportFlashAtlas               | Cvar: Set to 1 at startup to dump the F
 postLoadExportFlashToSWF               | Cvar: Set to 1 at startup to dump the Flash .bswf files as .swf (WIP)
 postLoadExportFlashToJSON              | Cvar: Set to 1 at startup to dump the Flash .bswf files as .json. Can be reimported into the engine and imported into Blender for inspection
 swf_show                               | Cvar: Draws the bounding box of instanced Flash sprites in red and their names
+makeMaterials `<folder>`               | Command: Make a .mtr file based on PBR naming conventions
 
 
 ---

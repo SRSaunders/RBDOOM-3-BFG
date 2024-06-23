@@ -921,7 +921,7 @@ void R_MakeAmbientMap( const char* baseName, byte* buffers[6], const char* suffi
 	}
 }
 
-CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
+CONSOLE_COMMAND_SHIP( bakeEnvironmentProbes, "Bake environment probes", NULL )
 {
 	idStr			fullname;
 	idStr			baseName;
@@ -1213,7 +1213,7 @@ CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )
 	idStr fullname = "env/_brdfLut.png";
 	idLib::Printf( "writing %s\n", fullname.c_str() );
 
-	R_WritePNG( fullname, ldrBuffer, 4, outSize, outSize, true, "fs_basepath" );
+	R_WritePNG( fullname, ldrBuffer, 4, outSize, outSize, "fs_basepath" );
 	//R_WriteEXR( "env/_brdfLut.exr", hdrBuffer, 4, outSize, outSize, "fs_basepath" );
 
 
