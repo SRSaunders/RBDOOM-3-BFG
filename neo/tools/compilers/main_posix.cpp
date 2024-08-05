@@ -618,6 +618,7 @@ int Sys_Milliseconds()
 	return curtime;
 	// DG end
 }
+
 class idSysCmdline : public idSys
 {
 public:
@@ -823,7 +824,7 @@ public:
 	// Initialize everything.
 	// if the OS allows, pass argc/argv directly (without executable name)
 	// otherwise pass the command line in a single string (without executable name)
-	virtual void				Init( int argc, const char* const* argv, const char* cmdline ) { };
+	virtual void				Init( int argc, const char* const* argv, const char* cmdline ) {}
 
 	// Shuts down everything.
 	virtual void				Shutdown() {}
@@ -851,6 +852,13 @@ public:
 	virtual void				UpdateScreen( bool captureToImage, bool releaseMouse = true );
 
 	virtual void				UpdateLevelLoadPacifier() {}
+	virtual void				LoadPacifierInfo( VERIFY_FORMAT_STRING const char* fmt, ... ) {}
+	virtual void				LoadPacifierProgressTotal( int total ) {}
+	virtual void				LoadPacifierProgressIncrement( int step ) {}
+	virtual bool				LoadPacifierRunning()
+	{
+		return false;
+	}
 
 
 	// Checks for and removes command line "+set var arg" constructs.
@@ -859,7 +867,7 @@ public:
 	virtual void				StartupVariable( const char* match ) {}
 
 	// Begins redirection of console output to the given buffer.
-	virtual void				BeginRedirect( char* buffer, int buffersize, void ( *flush )( const char* ) ) { };
+	virtual void				BeginRedirect( char* buffer, int buffersize, void ( *flush )( const char* ) ) {}
 
 	// Stops redirection of console output.
 	virtual void				EndRedirect() {}
@@ -1103,15 +1111,15 @@ public:
 	};
 
 	virtual void				QueueShowShell() { };		// Will activate the shell on the next frame.
-	void						InitTool( const toolFlag_t, const idDict*, idEntity* ) {}
+	virtual void				InitTool( const toolFlag_t, const idDict*, idEntity* ) {}
 
-	void						LoadPacifierBinarizeFilename( const char* filename, const char* reason ) {}
-	void						LoadPacifierBinarizeInfo( const char* info ) {}
-	void						LoadPacifierBinarizeMiplevel( int level, int maxLevel ) {}
-	void						LoadPacifierBinarizeProgress( float progress ) {}
-	void						LoadPacifierBinarizeEnd() { };
-	void						LoadPacifierBinarizeProgressTotal( int total ) {}
-	void						LoadPacifierBinarizeProgressIncrement( int step ) {}
+	virtual void				LoadPacifierBinarizeFilename( const char* filename, const char* reason ) {}
+	virtual void				LoadPacifierBinarizeInfo( const char* info ) {}
+	virtual void				LoadPacifierBinarizeMiplevel( int level, int maxLevel ) {}
+	virtual void				LoadPacifierBinarizeProgress( float progress ) {}
+	virtual void				LoadPacifierBinarizeEnd() { };
+	virtual void				LoadPacifierBinarizeProgressTotal( int total ) {}
+	virtual void				LoadPacifierBinarizeProgressIncrement( int step ) {}
 
 	virtual void				DmapPacifierFilename( const char* filename, const char* reason )
 	{

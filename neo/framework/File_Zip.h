@@ -27,22 +27,24 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __FILE_RESOURCE_H__
-#define __FILE_RESOURCE_H__
+#ifndef __FILE_ZIP_H__
+#define __FILE_ZIP_H__
 
 /*
 ==============================================================
 
-  Resource containers
+  Zip containers based off idResourceContainer and dhewm3
 
 ==============================================================
 */
-class idResourceContainer;
+#define MAX_ZIPPED_FILE_NAME	2048
 
-class idResourceCacheEntry
+class idZipContainer;
+
+class idZipCacheEntry
 {
 public:
-	idResourceCacheEntry()
+	idZipCacheEntry()
 	{
 		Clear();
 	}
@@ -53,78 +55,56 @@ public:
 		length = 0;
 		owner = NULL;
 	}
-	size_t Read( idFile* f )
-	{
-		size_t sz = f->ReadString( filename );
-		sz += f->ReadBig( offset );
-		sz += f->ReadBig( length );
-		return sz;
-	}
-	size_t Write( idFile* f )
-	{
-		size_t sz = f->WriteString( filename );
-		sz += f->WriteBig( offset );
-		sz += f->WriteBig( length );
-		return sz;
-	}
 
-	// part of .resources file format
-	idStrStatic< 256 >	filename;
-	int					offset;							// into the resource file
-	int 				length;
+	// part of .pk4 file format
+	idStrStatic< MAX_ZIPPED_FILE_NAME >	filename;
+	ZPOS64_T			offset;
+	ZPOS64_T			length;		// uncompressed size
 
 	// helpers only in memory
-	idResourceContainer* owner;
+	idZipContainer* owner;
 };
 
-static const uint32 RESOURCE_FILE_MAGIC = 0xD000000D;
-class idResourceContainer
+class idZipContainer
 {
 	friend class	idFileSystemLocal;
-	//friend class	idReadSpawnThread;
 public:
-	idResourceContainer()
+	idZipContainer()
 	{
-		resourceFile = NULL;
-		tableOffset = 0;
-		tableLength = 0;
-		resourceMagic = 0;
+		zipFileHandle = NULL;
+		checksum = 0;
 		numFileResources = 0;
 	}
-	~idResourceContainer()
+	~idZipContainer()
 	{
-		delete resourceFile;
+		unzClose( zipFileHandle );
 		cacheTable.Clear();
 	}
 	bool Init( const char* fileName );
-	static void WriteResourceFile( const char* fileName, const idStrList& manifest, const bool& _writeManifest );
-	static void WriteManifestFile( const char* name, const idStrList& list );
-	static int ReadManifestFile( const char* filename, idStrList& list );
-	static void ExtractResourceFile( const char* fileName, const char* outPath, bool copyWavs, bool all );
-	static void UpdateResourceFile( const char* filename, const idStrList& filesToAdd );
-	idFile* OpenFile( const char* fileName );
+	idFile_InZip* OpenFile( const idZipCacheEntry& rt, const char* relativePath );
+
 	const char* GetFileName() const
 	{
 		return fileName.c_str();
 	}
-	void ReOpen();
 
 	int GetNumFileResources() const
 	{
 		return numFileResources;
 	}
+
+	int	GetChecksum() const
+	{
+		return checksum;
+	}
 private:
-	idStrStatic< 256 > fileName;
-	idFile* 	resourceFile;			// open file handle
-	// offset should probably be a 64 bit value for development, but 4 gigs won't fit on
-	// a DVD layer, so it isn't a retail limitation.
-	int		tableOffset;			// table offset
-	int		tableLength;			// table length
-	int		resourceMagic;			// magic
-	int		numFileResources;		// number of file resources in this container
-	idList< idResourceCacheEntry, TAG_RESOURCE>	cacheTable;
-	idHashIndex	cacheHash;
+	idStrStatic< 256 >	fileName;			// containst the full OS path unlike idResourcesContainer
+	unzFile 			zipFileHandle;		// open file handle
+	int					checksum;
+	int					numFileResources;		// number of file resources in this container
+	idList< idZipCacheEntry, TAG_RESOURCE>	cacheTable;
+	idHashIndex			cacheHash;
 };
 
 
-#endif /* !__FILE_RESOURCE_H__ */
+#endif /* !__FILE_ZIP_H__ */

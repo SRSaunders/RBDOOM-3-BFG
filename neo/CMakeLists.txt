@@ -30,10 +30,10 @@ option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
 
 option(FFMPEG
-		"Use FMPEG to render Bink videos" ON)
+		"Use FMPEG to render Bink videos" OFF)
 
 option(BINKDEC
-		"Use included libbinkdec to render Bink videos" OFF)
+		"Use included libbinkdec to render Bink videos" ON)
 
 option(USE_MoltenVK
 		"Link directly to MoltenVK library instead of Vulkan loader on macOS" OFF)
@@ -126,6 +126,8 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	#add_definitions(-Wall)
 	add_definitions(-Werror=format-security)
 	add_definitions(-Werror=format)
+	add_definitions(-Wno-format-zero-length)
+	add_definitions(-Wno-nonnull)
 
 	# Compiler check (needs -std=c++17 flag)
 	include(CheckCXXCompilerFlag)
@@ -1532,6 +1534,7 @@ else()
 
 	# SRS - disable certain gcc/clang warnings for select third-party source libraries, consider updating versions in the future?
 	set_source_files_properties(
+			${ZLIB_SOURCES}
 			${MINIZIP_SOURCES}
 			PROPERTIES
 			COMPILE_FLAGS "-Wno-stringop-overread -Wno-deprecated-non-prototype"

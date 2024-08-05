@@ -330,10 +330,10 @@ private:
 };
 
 
-#if !defined( TYPEINFOPROJECT ) && !defined( DMAP )
 class idFile_InZip : public idFile
 {
-	friend class			idFileSystemLocal;
+	//friend class			idFileSystemLocal;
+	friend class			idZipContainer;
 
 public:
 	idFile_InZip();
@@ -365,7 +365,6 @@ private:
 	int						fileSize;		// size of the file
 	void* 					z;				// unzip info
 };
-#endif
 
 class idFile_InnerResource : public idFile
 {

@@ -47,9 +47,9 @@ using nvrhi::RefCountPtr;
 
 #define HR_RETURN(hr) if(FAILED(hr)) return false
 
-idCVar r_graphicsAdapter( "r_graphicsAdapter", "", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE, "Substring in the name the DXGI graphics adapter to select a certain GPU" );
-idCVar r_dxMaxFrameLatency( "r_dxMaxFrameLatency", "2", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE | CVAR_INTEGER, "Maximum frame latency for DXGI swap chains (DX12 only)", 0, NUM_FRAME_DATA );
-idCVar r_dxUsePushConstants( "r_dxUsePushConstants", "0", CVAR_RENDERER | CVAR_BOOL | CVAR_INIT, "Use D3D12 root constants / push constants for DX12 renderer" );
+idCVar r_graphicsAdapter( "r_graphicsAdapter", "", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE | CVAR_NEW, "Substring in the name the DXGI graphics adapter to select a certain GPU" );
+idCVar r_dxMaxFrameLatency( "r_dxMaxFrameLatency", "2", CVAR_RENDERER | CVAR_INIT | CVAR_ARCHIVE | CVAR_INTEGER | CVAR_NEW, "Maximum frame latency for DXGI swap chains (DX12 only)", 0, NUM_FRAME_DATA );
+idCVar r_dxUsePushConstants( "r_dxUsePushConstants", "0", CVAR_RENDERER | CVAR_BOOL | CVAR_INIT | CVAR_NEW, "Use D3D12 root constants / push constants for DX12 renderer" );
 
 class DeviceManager_DX12 : public DeviceManager
 {
