@@ -47,7 +47,7 @@ struct VS_IN
 struct VS_OUT
 {
 	float4 position	: SV_Position;
-	float2 texcoord0 : TEXCOORD0_centroid;
+	float3 texcoord0 : TEXCOORD0_centroid;
 	float4 color	: COLOR0;
 };
 // *INDENT-ON*
@@ -92,10 +92,18 @@ void main( VS_IN vertex, out VS_OUT result )
 	modelPosition.z = dot4( matZ, vertex.position );
 	modelPosition.w = 1.0;
 
+#else
+
+	float4 modelPosition = vertex.position;
+
+#endif
+
 	result.position.x = dot4( modelPosition, pc.rpMVPmatrixX );
 	result.position.y = dot4( modelPosition, pc.rpMVPmatrixY );
 	result.position.z = dot4( modelPosition, pc.rpMVPmatrixZ );
 	result.position.w = dot4( modelPosition, pc.rpMVPmatrixW );
+
+	result.position.xyz = psxVertexJitter( result.position );
 
 	// compute oldschool texgen or multiply by texture matrix
 	BRANCH if( pc.rpTexGen0Enabled.x > 0.0 )
@@ -108,25 +116,16 @@ void main( VS_IN vertex, out VS_OUT result )
 		result.texcoord0.x = dot4( vertex.texcoord.xy, pc.rpTextureMatrixS );
 		result.texcoord0.y = dot4( vertex.texcoord.xy, pc.rpTextureMatrixT );
 	}
-#else
 
-	result.position.x = dot4( vertex.position, pc.rpMVPmatrixX );
-	result.position.y = dot4( vertex.position, pc.rpMVPmatrixY );
-	result.position.z = dot4( vertex.position, pc.rpMVPmatrixZ );
-	result.position.w = dot4( vertex.position, pc.rpMVPmatrixW );
+	// PSX affine texture mapping
+	if( pc.rpPSXDistortions.z > 0.0 )
+	{
+		float distance = length( pc.rpLocalViewOrigin - modelPosition );
+		float warp =  psxAffineWarp( distance );
 
-	// Compute oldschool texgen or multiply by texture matrix
-	BRANCH if( pc.rpTexGen0Enabled.x > 0.0 )
-	{
-		result.texcoord0.x = dot4( vertex.position, pc.rpTexGen0S );
-		result.texcoord0.y = dot4( vertex.position, pc.rpTexGen0T );
+		result.texcoord0.z = warp;
+		result.texcoord0.xy *= warp;
 	}
-	else
-	{
-		result.texcoord0.x = dot4( vertex.texcoord.xy, pc.rpTextureMatrixS );
-		result.texcoord0.y = dot4( vertex.texcoord.xy, pc.rpTextureMatrixT );
-	}
-#endif
 
 	float4 vertexColor = ( swizzleColor( vertex.color ) * pc.rpVertexColorModulate ) + pc.rpVertexColorAdd;
 	result.color =  vertexColor * pc.rpColor;

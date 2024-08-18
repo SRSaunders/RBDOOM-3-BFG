@@ -117,4 +117,6 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.texcoord1.x = dot4( vertex.position, pc.rpTexGen1S );
 	result.texcoord1.y = dot4( vertex.position, pc.rpTexGen1T );
 #endif
+
+	result.position.xyz = psxVertexJitter( result.position );
 }

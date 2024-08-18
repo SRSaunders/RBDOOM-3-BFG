@@ -3,7 +3,6 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "global_inc.hlsl"
-#include "renderParmSet0.inc.hlsl"
 
 
 // *INDENT-OFF*
@@ -42,21 +40,16 @@ struct VS_IN
 	float4 color2	: COLOR1;
 };
 
-struct VS_OUT
-{
+struct VS_OUT {
 	float4 position : SV_Position;
-	float4 color : COLOR0;
+	float2 texcoord0 : TEXCOORD0_centroid;
 };
 // *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )
 {
-	result.position.x = dot4( vertex.position, pc.rpMVPmatrixX );
-	result.position.y = dot4( vertex.position, pc.rpMVPmatrixY );
-	result.position.z = dot4( vertex.position, pc.rpMVPmatrixZ );
-	result.position.w = dot4( vertex.position, pc.rpMVPmatrixW );
+	result.position = vertex.position;
+	result.position.y = -result.position.y;
 
-	result.position.xyz = psxVertexJitter( result.position );
-
-	result.color =  swizzleColor( vertex.color );
+	result.texcoord0 =  vertex.texcoord;
 }

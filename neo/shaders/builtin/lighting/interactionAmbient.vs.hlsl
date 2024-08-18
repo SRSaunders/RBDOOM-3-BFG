@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2024 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -133,6 +134,8 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.position.z = dot4( modelPosition, pc.rpMVPmatrixZ );
 	result.position.w = dot4( modelPosition, pc.rpMVPmatrixW );
 
+	result.position.xyz = psxVertexJitter( result.position );
+
 	float4 defaultTexCoord = float4( 0.0f, 0.5f, 0.0f, 1.0f );
 
 	//calculate vector to light
@@ -162,6 +165,18 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.texcoord5 = defaultTexCoord;
 	result.texcoord5.x = dot4( vertex.texcoord.xy, pc.rpSpecularMatrixS );
 	result.texcoord5.y = dot4( vertex.texcoord.xy, pc.rpSpecularMatrixT );
+
+	// PSX affine texture mapping
+	if( pc.rpPSXDistortions.z > 0.0 )
+	{
+		float distance = length( pc.rpLocalViewOrigin - modelPosition );
+		float warp =  psxAffineWarp( distance );
+
+		result.texcoord1.z = warp;
+		result.texcoord1.xy *= warp;
+		result.texcoord4.xy *= warp;
+		result.texcoord5.xy *= warp;
+	}
 
 	//# texture 6's texcoords will be the halfangle in texture space
 

@@ -119,7 +119,7 @@ float reconstructCSZ( float d )
 	return -3.0 / ( -1.0 * d + 1.0 );
 
 	//d = d * 2.0 - 1.0;
-	//return -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - d );
+	//return -pc.rpProjectionMatrixZ.w / ( -pc.rpProjectionMatrixZ.z - d );
 }
 
 float3 reconstructCSPosition( float2 S, float z )
