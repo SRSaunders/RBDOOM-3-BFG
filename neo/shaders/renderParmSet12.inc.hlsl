@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -26,31 +27,44 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global_inc.hlsl"
-#include "renderParmSet13.inc.hlsl"
+#include "vulkan.hlsli"
 
-
-// *INDENT-OFF*
-struct VS_IN
+struct renderParmSet12_t
 {
-	float4 position	: POSITION;
-	float2 texcoord	: TEXCOORD0;
-	float4 normal	: NORMAL;
-	float4 tangent	: TANGENT;
-	float4 color	: COLOR0;
-	float4 color2	: COLOR1;
+	float4 rpScreenCorrectionFactor;
+
+	float4 rpVertexColorModulate;
+	float4 rpVertexColorAdd;
+
+	float4 rpColor;
+
+	float4 rpMVPmatrixX;
+	float4 rpMVPmatrixY;
+	float4 rpMVPmatrixZ;
+	float4 rpMVPmatrixW;
+
+	float4 rpProjectionMatrixW;
+
+	float4 rpTextureMatrixS;
+	float4 rpTextureMatrixT;
+
+	float4 rpTexGen0S;
+	float4 rpTexGen0T;
+	float4 rpTexGen0Q;
+	float4 rpTexGen0Enabled;
+
+	float4 rpPSXDistortions;
 };
 
-struct VS_OUT
-{
-	float4 position		: SV_POSITION;
-	float2 texcoord0	: TEXCOORD0_centroid;
-};
-// *INDENT-ON*
+#if USE_PUSH_CONSTANTS
 
-void main( VS_IN vertex, out VS_OUT result )
+VK_PUSH_CONSTANT ConstantBuffer<renderParmSet12_t> pc : register( b0 );
+
+#else
+
+cbuffer pc : register( b0 VK_DESCRIPTOR_SET( 0 ) )
 {
-	result.position = vertex.position;
-	result.position.y = -result.position.y;
-	result.texcoord0 = vertex.texcoord;
+	renderParmSet12_t pc;
 }
+
+#endif

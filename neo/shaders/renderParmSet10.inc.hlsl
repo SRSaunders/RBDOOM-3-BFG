@@ -36,7 +36,7 @@ struct renderParmSet10_t
 
 	float4 rpLocalLightOrigin;
 	float4 rpLocalViewOrigin;
-	
+
 	float4 rpLightProjectionS;
 	float4 rpLightProjectionT;
 	float4 rpLightProjectionQ;
@@ -44,20 +44,24 @@ struct renderParmSet10_t
 
 	float4 rpBumpMatrixS;
 	float4 rpBumpMatrixT;
-	
+
 	float4 rpDiffuseMatrixS;
 	float4 rpDiffuseMatrixT;
 
 	float4 rpSpecularMatrixS;
 	float4 rpSpecularMatrixT;
-	
+
 	float4 rpVertexColorModulate;
 	float4 rpVertexColorAdd;
-	
+
 	float4 rpMVPmatrixX;
 	float4 rpMVPmatrixY;
 	float4 rpMVPmatrixZ;
 	float4 rpMVPmatrixW;
+
+	float4 rpProjectionMatrixW;
+
+	float4 rpPSXDistortions;
 };
 
 #if USE_PUSH_CONSTANTS

@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "global_inc.hlsl"
-#include "renderParmSet4.inc.hlsl"
+#include "renderParmSet12.inc.hlsl"
 
 
 // *INDENT-OFF*
@@ -56,7 +56,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.position.z = dot4( vertex.position, pc.rpMVPmatrixZ );
 	result.position.w = dot4( vertex.position, pc.rpMVPmatrixW );
 
-	result.position.xyz = psxVertexJitter( result.position );
+	result.position.xyz = psxVertexJitter( pc.rpPSXDistortions, pc.rpProjectionMatrixW, result.position );
 
 	float4 tc0;
 	tc0.x = dot4( vertex.position, pc.rpTexGen0S );

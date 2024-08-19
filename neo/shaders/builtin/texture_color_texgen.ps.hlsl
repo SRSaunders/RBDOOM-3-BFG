@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "global_inc.hlsl"
-#include "renderParmSet4.inc.hlsl"
+#include "renderParmSet12.inc.hlsl"
 
 
 // *INDENT-OFF*

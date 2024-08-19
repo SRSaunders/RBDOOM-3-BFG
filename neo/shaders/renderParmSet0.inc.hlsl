@@ -33,15 +33,16 @@ struct renderParmSet0_t
 {
 	float4 rpLocalViewOrigin;
 
-	float4 rpVertexColorModulate;
-	float4 rpVertexColorAdd;
-
 	float4 rpColor;
 
 	float4 rpMVPmatrixX;
 	float4 rpMVPmatrixY;
 	float4 rpMVPmatrixZ;
 	float4 rpMVPmatrixW;
+
+	float4 rpProjectionMatrixW;
+
+	float4 rpPSXDistortions;
 };
 
 #if USE_PUSH_CONSTANTS

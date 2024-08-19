@@ -30,7 +30,7 @@
   */
 
 #include "global_inc.hlsl"
-#include "renderParmSet2.inc.hlsl"
+#include "renderParmSet13.inc.hlsl"
 
 
 #define DIFFERENT_DEPTH_RESOLUTIONS 0

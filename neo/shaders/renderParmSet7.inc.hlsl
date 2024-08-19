@@ -38,12 +38,16 @@ struct renderParmSet7_t
 	float4 rpMVPmatrixZ;
 	float4 rpMVPmatrixW;
 
+	float4 rpProjectionMatrixW;
+
 	float4 rpTexGen0S;
 	float4 rpTexGen0T;
 	float4 rpTexGen0Q;
 
 	float4 rpTexGen1S;
 	float4 rpTexGen1T;
+
+	float4 rpPSXDistortions;
 };
 
 #if USE_PUSH_CONSTANTS

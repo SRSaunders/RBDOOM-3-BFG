@@ -204,7 +204,9 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		rpNominalSet8.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
 		rpMaximalSet9.Num() * sizeof( idVec4 )  > sizeof( rpMaximalSet ) ||
 		rpMaximalSet10.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
-		rpMaximalSet11.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) )
+		rpMaximalSet11.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
+		rpNominalSet12.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) ||
+		rpNominalSet13.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) )
 	{
 		common->FatalError( "Renderparm subset sizes exceed push constant buffer sizes" );
 	}
@@ -345,6 +347,28 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 				renderParmLayoutTypes[rpMaximalSet11[i]].AddUnique( ( bindingLayoutType_t )layoutType );
 			}
 		}
+		else if( rpNominalSet12LayoutTypes.Find( ( bindingLayoutType_t )layoutType ) )
+		{
+			layoutTypeAttributes[layoutType].rpSubSet  = renderParmSet12;
+			layoutTypeAttributes[layoutType].rpBufSize = rpNominalSet12.Num() * sizeof( idVec4 );
+			layoutTypeAttributes[layoutType].cbStatic  = false;
+
+			for( int i = 0; i < rpNominalSet12.Num(); i++ )
+			{
+				renderParmLayoutTypes[rpNominalSet12[i]].AddUnique( ( bindingLayoutType_t )layoutType );
+			}
+		}
+		else if( rpNominalSet13LayoutTypes.Find( ( bindingLayoutType_t )layoutType ) )
+		{
+			layoutTypeAttributes[layoutType].rpSubSet  = renderParmSet13;
+			layoutTypeAttributes[layoutType].rpBufSize = rpNominalSet13.Num() * sizeof( idVec4 );
+			layoutTypeAttributes[layoutType].cbStatic  = false;
+
+			for( int i = 0; i < rpNominalSet13.Num(); i++ )
+			{
+				renderParmLayoutTypes[rpNominalSet13[i]].AddUnique( ( bindingLayoutType_t )layoutType );
+			}
+		}
 		else
 		{
 			layoutTypeAttributes[layoutType].rpSubSet  = renderParmNullSet;
@@ -374,11 +398,12 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	bindingLayouts[BINDING_LAYOUT_TEXTURE] = { uniformsLayout( BINDING_LAYOUT_TEXTURE, false ), defaultLayout, samplerOneBindingLayout };
 	bindingLayouts[BINDING_LAYOUT_TEXTURE_SKINNED] = { uniformsLayout( BINDING_LAYOUT_TEXTURE_SKINNED, true ), defaultLayout, samplerOneBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_TEXGEN] = { uniformsLayout( BINDING_LAYOUT_TEXGEN, false ), defaultLayout, samplerOneBindingLayout };
 
-	bindingLayouts[BINDING_LAYOUT_WOBBLESKY] = { uniformsLayout( BINDING_LAYOUT_WOBBLESKY, false ), defaultLayout, samplerOneBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_LEGACY] = { uniformsLayout( BINDING_LAYOUT_LEGACY, false ), defaultLayout, samplerOneBindingLayout };
 
-	bindingLayouts[BINDING_LAYOUT_SSGI] = { uniformsLayout( BINDING_LAYOUT_SSGI, false ), defaultLayout, samplerOneBindingLayout };
-	bindingLayouts[BINDING_LAYOUT_SSGI_SKINNED] = { uniformsLayout( BINDING_LAYOUT_SSGI_SKINNED, true ), defaultLayout, samplerOneBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_DEBUG] = { uniformsLayout( BINDING_LAYOUT_DEBUG, false ), defaultLayout, samplerOneBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_DEBUG_SKINNED] = { uniformsLayout( BINDING_LAYOUT_DEBUG_SKINNED, true ), defaultLayout, samplerOneBindingLayout };
 
 	bindingLayouts[BINDING_LAYOUT_POST_PROCESS] = { uniformsLayout( BINDING_LAYOUT_POST_PROCESS, false ), defaultLayout, samplerOneBindingLayout };
 
@@ -733,7 +758,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_TEXTURE_VERTEXCOLOR, "builtin/texture_color", "", { { "USE_GPU_SKINNING", "0" }, {"USE_SRGB", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXTURE ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXTURE },
 		{ BUILTIN_TEXTURE_VERTEXCOLOR_SRGB, "builtin/texture_color", "_sRGB", { { "USE_GPU_SKINNING", "0" }, {"USE_SRGB", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXTURE ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXTURE },
 		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "builtin/texture_color", "_skinned", { { "USE_GPU_SKINNING", "1" }, {"USE_SRGB", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXTURE_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXTURE_SKINNED },
-		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "builtin/texture_color_texgen", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXTURE ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXTURE },
+		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "builtin/texture_color_texgen", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXGEN ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXGEN },
 
 		{ BUILTIN_INTERACTION, "builtin/lighting/interaction", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PBR", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_INTERACTION ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_INTERACTION },
 		{ BUILTIN_INTERACTION_SKINNED, "builtin/lighting/interaction", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PBR", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_INTERACTION_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_INTERACTION_SKINNED },
@@ -787,8 +812,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_PBR_INTERACTION_SHADOW_ATLAS_PARALLEL_SKINNED, "builtin/lighting/interactionSM", "_atlas_parallel_skinned_PBR", { { "USE_GPU_SKINNING", "1" }, { "LIGHT_POINT", "0" }, { "LIGHT_PARALLEL", "1" }, { "USE_PBR", "1" }, { "USE_NORMAL_FMT_RGB8", "0" }, { "USE_SHADOW_ATLAS", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_INTERACTION_SM_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_INTERACTION_SM_SKINNED },
 
 		// debug stuff
-		{ BUILTIN_DEBUG_LIGHTGRID, "builtin/debug/lightgrid", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_SSGI ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_SSGI },
-		{ BUILTIN_DEBUG_LIGHTGRID_SKINNED, "builtin/debug/lightgrid", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_SSGI_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_SSGI_SKINNED },
+		{ BUILTIN_DEBUG_LIGHTGRID, "builtin/debug/lightgrid", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEBUG ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEBUG },
+		{ BUILTIN_DEBUG_LIGHTGRID_SKINNED, "builtin/debug/lightgrid", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEBUG_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEBUG_SKINNED },
 
 		{ BUILTIN_DEBUG_OCTAHEDRON, "builtin/debug/octahedron", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEFAULT ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_DEBUG_OCTAHEDRON_SKINNED, "builtin/debug/octahedron", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEFAULT_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT_SKINNED },
@@ -805,8 +830,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_BLENDLIGHT_SKINNED, "builtin/fog/blendlight", "_skinned",  { { "USE_GPU_SKINNING", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_BLENDLIGHT_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLENDLIGHT_SKINNED },
 		{ BUILTIN_FOG, "builtin/fog/fog", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_FOG ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_FOG },
 		{ BUILTIN_FOG_SKINNED, "builtin/fog/fog", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_FOG_SKINNED ) } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_FOG_SKINNED },
-		{ BUILTIN_SKYBOX, "builtin/legacy/skybox", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEFAULT ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_WOBBLESKY, "builtin/legacy/wobblesky", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_WOBBLESKY ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_WOBBLESKY },
+		{ BUILTIN_SKYBOX, "builtin/legacy/skybox", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_LEGACY ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_LEGACY },
+		{ BUILTIN_WOBBLESKY, "builtin/legacy/wobblesky", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_LEGACY ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_LEGACY },
 		{ BUILTIN_POSTPROCESS, "builtin/post/postprocess", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS_FINAL ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
 		{ BUILTIN_POSTPROCESS_RETRO_2BIT, "builtin/post/retro_2bit", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS_FINAL ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
 		{ BUILTIN_POSTPROCESS_RETRO_C64, "builtin/post/retro_c64", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS_FINAL ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
@@ -839,9 +864,9 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT, "builtin/SSAO/AmbientOcclusion_AO", "_write", { { "BRIGHTPASS", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_AO ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_AO },
 		{ BUILTIN_AMBIENT_OCCLUSION_BLUR, "builtin/SSAO/AmbientOcclusion_blur", "", { { "BRIGHTPASS", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_AO ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_AO },
 		{ BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT, "builtin/SSAO/AmbientOcclusion_blur", "_write", { { "BRIGHTPASS", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_AO ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_AO },
-		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI, "builtin/SSGI/DeepGBufferRadiosity_radiosity", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_SSGI ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_SSGI },
-		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR, "builtin/SSGI/DeepGBufferRadiosity_blur", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_SSGI ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_SSGI },
-		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT, "builtin/SSGI/DeepGBufferRadiosity_blur", "_write", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_SSGI ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_SSGI },
+		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI, "builtin/SSGI/DeepGBufferRadiosity_radiosity", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEBUG ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEBUG },
+		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR, "builtin/SSGI/DeepGBufferRadiosity_blur", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEBUG ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEBUG },
+		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT, "builtin/SSGI/DeepGBufferRadiosity_blur", "_write", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEBUG ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEBUG },
 
 		{ BUILTIN_STEREO_DEGHOST, "builtin/VR/stereoDeGhost", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEFAULT ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_STEREO_WARP, "builtin/VR/stereoWarp", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEFAULT ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
@@ -853,7 +878,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		// SRS - disabled VECTORS_ONLY now that BUILTIN_TAA_MOTION_VECTORS is properly defined
 		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "", { { "VECTORS_ONLY", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
 
-		{ BUILTIN_DEBUG_SHADOWMAP, "builtin/debug/debug_shadowmap", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXTURE ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXTURE },
+		{ BUILTIN_DEBUG_SHADOWMAP, "builtin/debug/debug_shadowmap", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXGEN ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXGEN },
 
 		// SP begin
 		{ BUILTIN_BLIT, "builtin/blit", "", { { "TEXTURE_ARRAY", "0" } }, false, SHADER_STAGE_FRAGMENT, LAYOUT_UNKNOWN, BINDING_LAYOUT_BLIT },

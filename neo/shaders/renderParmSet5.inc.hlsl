@@ -46,10 +46,14 @@ struct renderParmSet5_t
 	float4 rpModelMatrixX;
 	float4 rpModelMatrixY;
 	float4 rpModelMatrixZ;
-	
+
+	float4 rpProjectionMatrixW;
+
 	float4 rpWobbleSkyX;
 	float4 rpWobbleSkyY;
 	float4 rpWobbleSkyZ;
+
+	float4 rpPSXDistortions;
 };
 
 #if USE_PUSH_CONSTANTS

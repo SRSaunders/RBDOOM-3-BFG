@@ -33,11 +33,7 @@ struct renderParmSet2_t
 {
 	float4 rpScreenCorrectionFactor;
 	float4 rpWindowCoord;
-
-	float4 rpModelMatrixX;
-	float4 rpModelMatrixY;
-	float4 rpModelMatrixZ;
-	float4 rpModelMatrixW;
+	float4 rpDiffuseModifier;
 
 	float4 rpJitterTexScale;
 	float4 rpJitterTexOffset;

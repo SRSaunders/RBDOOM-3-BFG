@@ -806,11 +806,12 @@ enum bindingLayoutType_t
 
 	BINDING_LAYOUT_TEXTURE,
 	BINDING_LAYOUT_TEXTURE_SKINNED,
+	BINDING_LAYOUT_TEXGEN,
 
-	BINDING_LAYOUT_WOBBLESKY,
+	BINDING_LAYOUT_LEGACY,
 
-	BINDING_LAYOUT_SSGI,
-	BINDING_LAYOUT_SSGI_SKINNED,
+	BINDING_LAYOUT_DEBUG,
+	BINDING_LAYOUT_DEBUG_SKINNED,
 
 	BINDING_LAYOUT_POST_PROCESS,
 	// SRS end
@@ -1721,7 +1722,7 @@ TR_BACKEND_DRAW
 
 typedef idVec4 rpMinimalSet[8];			// 128 bytes for minimal Vulkan push / DX12 root constant sizes
 typedef idVec4 rpNominalSet[16];		// 256 bytes for nominal Vulkan push / DX12 root constant sizes
-typedef idVec4 rpMaximalSet[64];		// 1024 bytes for larger sizes (e.g. 4096 limit on macOS MoltenVK)
+typedef idVec4 rpMaximalSet[72];		// 1152 bytes for larger sizes (e.g. 4096 limit on macOS MoltenVK)
 
 struct renderParmSet_t
 {

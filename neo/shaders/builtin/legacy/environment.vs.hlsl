@@ -122,7 +122,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.texcoord1 = vNormal.xyz;
 #endif
 
-	result.position.xyz = psxVertexJitter( result.position );
+	result.position.xyz = psxVertexJitter( pc.rpPSXDistortions, pc.rpProjectionMatrixW, result.position );
 
 	result.color = sRGBAToLinearRGBA( pc.rpColor );
 }

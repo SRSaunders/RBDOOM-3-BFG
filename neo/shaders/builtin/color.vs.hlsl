@@ -103,5 +103,5 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.position.w = dot4( vertex.position, pc.rpMVPmatrixW );
 #endif
 
-	result.position.xyz = psxVertexJitter( result.position );
+	result.position.xyz = psxVertexJitter( pc.rpPSXDistortions, pc.rpProjectionMatrixW, result.position );
 }

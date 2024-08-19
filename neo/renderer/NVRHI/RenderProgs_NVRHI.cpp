@@ -488,6 +488,24 @@ void idRenderProgManager::SelectUniforms( renderParmSet_t* renderParmSet, int bi
 			break;
 		}
 
+		case renderParmSet12:
+		{
+			for( int i = 0; i < rpNominalSet12.Num(); i++ )
+			{
+				memcpy( &renderParmSet->nominalSet[i], &uniforms[rpNominalSet12[i]], sizeof( idVec4 ) );
+			}
+			break;
+		}
+
+		case renderParmSet13:
+		{
+			for( int i = 0; i < rpNominalSet13.Num(); i++ )
+			{
+				memcpy( &renderParmSet->nominalSet[i], &uniforms[rpNominalSet13[i]], sizeof( idVec4 ) );
+			}
+			break;
+		}
+
 		case renderParmNullSet:
 		default:
 		{

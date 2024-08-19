@@ -37,21 +37,21 @@ struct renderParmSet11_t
 
 	float4 rpLocalLightOrigin;
 	float4 rpLocalViewOrigin;
-	
+
 	float4 rpLightProjectionS;
 	float4 rpLightProjectionT;
 	float4 rpLightProjectionQ;
 	float4 rpLightFalloffS;
-	
+
 	float4 rpBumpMatrixS;
 	float4 rpBumpMatrixT;
-	
+
 	float4 rpDiffuseMatrixS;
 	float4 rpDiffuseMatrixT;
 
 	float4 rpSpecularMatrixS;
 	float4 rpSpecularMatrixT;
-	
+
 	float4 rpVertexColorModulate;
 	float4 rpVertexColorAdd;
 
@@ -59,12 +59,14 @@ struct renderParmSet11_t
 	float4 rpMVPmatrixY;
 	float4 rpMVPmatrixZ;
 	float4 rpMVPmatrixW;
-	
+
 	float4 rpModelMatrixX;
 	float4 rpModelMatrixY;
 	float4 rpModelMatrixZ;
 	float4 rpModelMatrixW;
-	
+
+	float4 rpProjectionMatrixW;
+
 	float4 rpModelViewMatrixX;
 	float4 rpModelViewMatrixY;
 	float4 rpModelViewMatrixZ;
@@ -73,8 +75,9 @@ struct renderParmSet11_t
 	float4 rpGlobalLightOrigin;
 	float4 rpJitterTexScale;
 	float4 rpJitterTexOffset;
+	float4 rpPSXDistortions;
 	float4 rpCascadeDistances;
-	
+
 	float4 rpShadowMatrices[6 * 4];
 	float4 rpShadowAtlasOffsets[6];
 };

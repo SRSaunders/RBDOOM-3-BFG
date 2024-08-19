@@ -583,7 +583,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		uniformsBindingSetItem = nvrhi::BindingSetItem::PushConstants( 0, renderProgManager.layoutTypeAttributes[type].rpBufSize );
 	}
 
-	if( type == BINDING_LAYOUT_DEFAULT || type == BINDING_LAYOUT_GBUFFER || type == BINDING_LAYOUT_TEXTURE || type == BINDING_LAYOUT_WOBBLESKY || type == BINDING_LAYOUT_SSGI || type == BINDING_LAYOUT_POST_PROCESS )
+	if( type == BINDING_LAYOUT_DEFAULT || type == BINDING_LAYOUT_GBUFFER || type == BINDING_LAYOUT_TEXTURE || type == BINDING_LAYOUT_TEXGEN || type == BINDING_LAYOUT_LEGACY || type == BINDING_LAYOUT_DEBUG || type == BINDING_LAYOUT_POST_PROCESS )
 	{
 		if( desc[0].bindings.empty() )
 		{
@@ -621,7 +621,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[2].bindings[0].resourceHandle = ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache );
 		}
 	}
-	else if( type == BINDING_LAYOUT_DEFAULT_SKINNED || type == BINDING_LAYOUT_GBUFFER_SKINNED || type == BINDING_LAYOUT_TEXTURE_SKINNED || type == BINDING_LAYOUT_SSGI_SKINNED )
+	else if( type == BINDING_LAYOUT_DEFAULT_SKINNED || type == BINDING_LAYOUT_GBUFFER_SKINNED || type == BINDING_LAYOUT_TEXTURE_SKINNED || type == BINDING_LAYOUT_DEBUG_SKINNED )
 	{
 		if( desc[0].bindings.empty() )
 		{

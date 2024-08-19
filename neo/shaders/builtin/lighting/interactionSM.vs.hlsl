@@ -136,7 +136,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.position.z = dot4( modelPosition, pc.rpMVPmatrixZ );
 	result.position.w = dot4( modelPosition, pc.rpMVPmatrixW );
 
-	result.position.xyz = psxVertexJitter( result.position );
+	result.position.xyz = psxVertexJitter( pc.rpPSXDistortions, pc.rpProjectionMatrixW, result.position );
 
 	float4 defaultTexCoord = float4( 0.0f, 0.5f, 0.0f, 1.0f );
 

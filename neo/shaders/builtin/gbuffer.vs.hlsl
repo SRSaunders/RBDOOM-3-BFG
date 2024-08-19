@@ -131,7 +131,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.position.z = dot4( modelPosition, pc.rpMVPmatrixZ );
 	result.position.w = dot4( modelPosition, pc.rpMVPmatrixW );
 
-	result.position.xyz = psxVertexJitter( result.position );
+	result.position.xyz = psxVertexJitter( pc.rpPSXDistortions, pc.rpProjectionMatrixW, result.position );
 
 	// textures 0 takes the base coordinates by the texture matrix
 	result.texcoord0.x = dot4( vertex.texcoord.xy, pc.rpBumpMatrixS );

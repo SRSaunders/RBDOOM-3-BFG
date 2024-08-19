@@ -54,7 +54,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.position.z = dot4( vertex.position, pc.rpMVPmatrixZ );
 	result.position.w = dot4( vertex.position, pc.rpMVPmatrixW );
 
-	result.position.xyz = psxVertexJitter( result.position );
+	result.position.xyz = psxVertexJitter( pc.rpPSXDistortions, pc.rpProjectionMatrixW, result.position );
 
 	result.texcoord0 = vertex.texcoord;
 }

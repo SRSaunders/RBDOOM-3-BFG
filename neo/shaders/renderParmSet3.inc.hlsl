@@ -31,8 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 
 struct renderParmSet3_t
 {
+	float4 rpLocalViewOrigin;
+
 	float4 rpBumpMatrixS;
 	float4 rpBumpMatrixT;
+
+	float4 rpSpecularMatrixS;
+	float4 rpSpecularMatrixT;
 
 	float4 rpVertexColorModulate;
 	float4 rpVertexColorAdd;
@@ -42,9 +47,13 @@ struct renderParmSet3_t
 	float4 rpMVPmatrixZ;
 	float4 rpMVPmatrixW;
 
-	float4 rpModelViewMatrixX;
-	float4 rpModelViewMatrixY;
-	float4 rpModelViewMatrixZ;
+	float4 rpModelMatrixX;
+	float4 rpModelMatrixY;
+	float4 rpModelMatrixZ;
+
+	float4 rpProjectionMatrixW;
+
+	float4 rpPSXDistortions;
 };
 
 #if USE_PUSH_CONSTANTS

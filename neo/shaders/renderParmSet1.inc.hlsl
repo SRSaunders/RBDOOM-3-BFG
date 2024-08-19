@@ -38,7 +38,7 @@ struct renderParmSet1_t
 	float4 rpMVPmatrixY;
 	float4 rpMVPmatrixZ;
 	float4 rpMVPmatrixW;
-	
+
 	float4 rpOverbright;
 };
 

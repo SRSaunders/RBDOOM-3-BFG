@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -26,31 +27,37 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global_inc.hlsl"
-#include "renderParmSet13.inc.hlsl"
+#include "vulkan.hlsli"
 
-
-// *INDENT-OFF*
-struct VS_IN
+struct renderParmSet13_t
 {
-	float4 position	: POSITION;
-	float2 texcoord	: TEXCOORD0;
-	float4 normal	: NORMAL;
-	float4 tangent	: TANGENT;
-	float4 color	: COLOR0;
-	float4 color2	: COLOR1;
+	float4 rpScreenCorrectionFactor;
+	float4 rpWindowCoord;
+
+	float4 rpModelMatrixX;
+	float4 rpModelMatrixY;
+	float4 rpModelMatrixZ;
+	float4 rpModelMatrixW;
+
+	float4 rpProjectionMatrixZ;
+
+	float4 rpModelViewMatrixX;
+	float4 rpModelViewMatrixY;
+	float4 rpModelViewMatrixZ;
+
+	float4 rpJitterTexScale;
+	float4 rpJitterTexOffset;
 };
 
-struct VS_OUT
-{
-	float4 position		: SV_POSITION;
-	float2 texcoord0	: TEXCOORD0_centroid;
-};
-// *INDENT-ON*
+#if USE_PUSH_CONSTANTS
 
-void main( VS_IN vertex, out VS_OUT result )
+VK_PUSH_CONSTANT ConstantBuffer<renderParmSet13_t> pc : register( b0 );
+
+#else
+
+cbuffer pc : register( b0 VK_DESCRIPTOR_SET( 0 ) )
 {
-	result.position = vertex.position;
-	result.position.y = -result.position.y;
-	result.texcoord0 = vertex.texcoord;
+	renderParmSet13_t pc;
 }
+
+#endif
