@@ -218,7 +218,7 @@ private:
 
 public:
 	uint64				GL_GetCurrentState() const;
-	idVec2				GetCurrentPixelOffset() const;
+	idVec2				GetCurrentPixelOffset( int frameIndex ) const;
 
 	nvrhi::ICommandList* GL_GetCommandList() const
 	{
