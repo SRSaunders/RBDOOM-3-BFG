@@ -1572,14 +1572,13 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		{
 			desc[0].bindings =
 			{
-				nvrhi::BindingSetItem::ConstantBuffer( 0, paramCb, range ),
+				uniformsBindingSetItem,
 				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() )
 			};
 		}
 		else
 		{
-			desc[0].bindings[0].resourceHandle = paramCb;
-			desc[0].bindings[0].range = range;
+			desc[0].bindings[0] = uniformsBindingSetItem;
 			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
 		}
 
@@ -1603,7 +1602,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		{
 			desc[0].bindings =
 			{
-				nvrhi::BindingSetItem::ConstantBuffer( 0, paramCb, range ),
+				uniformsBindingSetItem,
 				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
 				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
 				nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() )
@@ -1611,8 +1610,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		}
 		else
 		{
-			desc[0].bindings[0].resourceHandle = paramCb;
-			desc[0].bindings[0].range = range;
+			desc[0].bindings[0] = uniformsBindingSetItem;
 			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
 			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
 			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
