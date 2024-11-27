@@ -851,6 +851,10 @@ enum bindingLayoutType_t
 
 	BINDING_LAYOUT_BINK_VIDEO,
 
+	// SMAA
+	BINDING_LAYOUT_SMAA_EDGE_DETECTION,
+	BINDING_LAYOUT_SMAA_WEIGHT_CALC,
+
 	// NVRHI render passes specific
 	BINDING_LAYOUT_TAA_MOTION_VECTORS,
 	BINDING_LAYOUT_TAA_RESOLVE,
@@ -892,13 +896,10 @@ public:
 	virtual void			ShutdownOpenGL();
 	virtual bool			IsOpenGLRunning() const;
 	virtual bool			IsFullScreen() const;
-	virtual stereo3DMode_t	GetStereo3DMode() const;
-	virtual bool			HasQuadBufferSupport() const;
-	virtual bool			IsStereoScopicRenderingSupported() const;
-	virtual stereo3DMode_t	GetStereoScopicRenderingMode() const;
-	virtual void			EnableStereoScopicRendering( const stereo3DMode_t mode ) const;
 	virtual int				GetWidth() const;
 	virtual int				GetHeight() const;
+	virtual int				GetNativeWidth() const;
+	virtual int				GetNativeHeight() const;
 	virtual int				GetVirtualWidth() const;
 	virtual int				GetVirtualHeight() const;
 	virtual float			GetPixelAspect() const;
@@ -971,8 +972,6 @@ public:
 	// internal functions
 	idRenderSystemLocal();
 	~idRenderSystemLocal();
-
-	void					UpdateStereo3DMode();
 
 	void					Clear();
 	void					GetCroppedViewport( idScreenRect* viewport );
@@ -1396,7 +1395,6 @@ struct glimpParms_t
 	int			fullScreen;		// 0 = windowed, otherwise 1 based monitor number to go full screen on
 	// -1 = borderless window for spanning multiple displays
 	bool		startMaximized = false;
-	bool		stereo;
 	int			displayHz;
 	int			multiSamples;
 };

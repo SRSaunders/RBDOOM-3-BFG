@@ -1082,21 +1082,20 @@ void idImageManager::CreateIntrinsicImages()
 	bloomRenderImage[0] = globalImages->ImageFromFunction( "_bloomRender0", R_HDR_RGBA16FImage_ResQuarter_Linear );
 	bloomRenderImage[1] = globalImages->ImageFromFunction( "_bloomRender1", R_HDR_RGBA16FImage_ResQuarter_Linear );
 
-	glowImage[0] = globalImages->ImageFromFunction( "_glowImage0", R_RGBA8Image_ResGui );
-	glowImage[1] = globalImages->ImageFromFunction( "_glowImage1", R_RGBA8Image_ResGui );
-	glowDepthImage[0] = globalImages->ImageFromFunction( "_glowDepthImage0", R_DepthImage );
-	glowDepthImage[1] = globalImages->ImageFromFunction( "_glowDepthImage1", R_DepthImage );
+	//glowImage[0] = globalImages->ImageFromFunction( "_glowImage0", R_RGBA8Image_ResGui );
+	//glowImage[1] = globalImages->ImageFromFunction( "_glowImage1", R_RGBA8Image_ResGui );
+	//glowDepthImage[0] = globalImages->ImageFromFunction( "_glowDepthImage0", R_DepthImage );
+	//glowDepthImage[1] = globalImages->ImageFromFunction( "_glowDepthImage1", R_DepthImage );
 
-	accumTransparencyImage = globalImages->ImageFromFunction( "_accumTransparencyImage", R_HDR_RGBA16FImage_ResNative_Linear );
-	revealTransparencyImage = globalImages->ImageFromFunction( "_revealTransparencyImage", R_R8Image_ResNative_Linear );
+	//accumTransparencyImage = globalImages->ImageFromFunction( "_accumTransparencyImage", R_HDR_RGBA16FImage_ResNative_Linear );
+	//revealTransparencyImage = globalImages->ImageFromFunction( "_revealTransparencyImage", R_R8Image_ResNative_Linear );
 
 	heatmap5Image = ImageFromFunction( "_heatmap5", R_CreateHeatmap5ColorsImage );
 	heatmap7Image = ImageFromFunction( "_heatmap7", R_CreateHeatmap7ColorsImage );
 
 	grainImage1 = globalImages->ImageFromFunction( "_grain1", R_CreateGrainImage1 );
 
-	smaaInputImage = ImageFromFunction( "_smaaInput", R_RGBA8LinearImage );
-
+	smaaInputImage = ImageFromFunction( "_smaaInput", R_SMAAImage_ResNative );
 	smaaAreaImage = globalImages->ImageFromFunction( "_smaaArea", R_CreateSMAAAreaImage );
 	smaaSearchImage = globalImages->ImageFromFunction( "_smaaSearch", R_CreateSMAASearchImage );
 
@@ -1115,6 +1114,9 @@ void idImageManager::CreateIntrinsicImages()
 	chromeSpecImage = ImageFromFunction( "_chromeSpec", R_ChromeSpecImage );
 	plasticSpecImage = ImageFromFunction( "_plasticSpec", R_PlasticSpecImage );
 	brdfLutImage = ImageFromFunction( "_brdfLut", R_CreateBrdfLutImage );
+
+	defaultUACIrradianceCube = ImageFromFunction( "_defaultUACIrradiance", R_CreateEnvprobeImage_UAC_lobby_irradiance );
+	defaultUACRadianceCube = ImageFromFunction( "_defaultUACRadiance", R_CreateEnvprobeImage_UAC_lobby_radiance );
 	// RB end
 
 	// scratchImage is used for screen wipes/doublevision etc..
@@ -1131,16 +1133,6 @@ void idImageManager::CreateIntrinsicImages()
 
 	loadingIconImage = ImageFromFile( "textures/loadingicon2", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 	hellLoadingIconImage = ImageFromFile( "textures/loadingicon3", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
-
-	// RB begin
-#if 0
-	defaultUACIrradianceCube = ImageFromFile( "env/UAC5_amb", TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
-	defaultUACRadianceCube = ImageFromFile( "env/UAC5_spec", TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
-#else
-	defaultUACIrradianceCube = ImageFromFunction( "_defaultUACIrradiance", R_CreateEnvprobeImage_UAC_lobby_irradiance );
-	defaultUACRadianceCube = ImageFromFunction( "_defaultUACRadiance", R_CreateEnvprobeImage_UAC_lobby_radiance );
-#endif
-	// RB end
 
 	guiEdit = ImageFromFunction( "_guiEdit", R_GuiEditFunction );
 	guiEditDepthStencilImage = ImageFromFunction( "_guiEditDepthStencil", R_GuiEditDepthStencilFunction );

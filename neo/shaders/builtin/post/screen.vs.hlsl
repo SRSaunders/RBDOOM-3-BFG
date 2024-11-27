@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "global_inc.hlsl"
-#include "renderParmSet1.inc.hlsl"
+#include "renderParmSet12.inc.hlsl"
 
 
 // *INDENT-OFF*
@@ -49,11 +49,34 @@ struct VS_OUT {
 
 void main( VS_IN vertex, out VS_OUT result )
 {
+#if 0
 	result.position = vertex.position;
+	result.position.y = -result.position.y;
 
 	//result.position.x = vertex.position; //dot4( vertex.position, pc.rpMVPmatrixX );
 	//result.position.y = dot4( vertex.position, pc.rpMVPmatrixY );
 	//result.position.z = dot4( vertex.position, pc.rpMVPmatrixZ );
 	//result.position.w = dot4( vertex.position, pc.rpMVPmatrixW );
 	result.texcoord0 =  vertex.texcoord;
+#else
+	result.position.x = dot4( vertex.position, pc.rpMVPmatrixX );
+	result.position.y = dot4( vertex.position, pc.rpMVPmatrixY );
+	result.position.z = dot4( vertex.position, pc.rpMVPmatrixZ );
+	result.position.w = dot4( vertex.position, pc.rpMVPmatrixW );
+
+	// compute oldschool texgen or multiply by texture matrix
+	BRANCH if( pc.rpTexGen0Enabled.x > 0.0 )
+	{
+		result.texcoord0.x = dot4( vertex.position, pc.rpTexGen0S );
+		result.texcoord0.y = dot4( vertex.position, pc.rpTexGen0T );
+	}
+	else
+	{
+		result.texcoord0.x = dot4( vertex.texcoord.xy, pc.rpTextureMatrixS );
+		result.texcoord0.y = dot4( vertex.texcoord.xy, pc.rpTextureMatrixT );
+	}
+
+	// RB: flip Y for DX12 / Vulkan
+	result.texcoord0.y = 1.0 - result.texcoord0.y;
+#endif
 }

@@ -593,22 +593,22 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_CRT] = { device->createBindingLayout( ppCrtBindingLayout ), samplerTwoBindingLayout };
 
-	auto ppFxLayoutItem2 = layoutTypeAttributes[BINDING_LAYOUT_POST_PROCESS_FINAL2].cbStatic ? nvrhi::BindingLayoutItem::ConstantBuffer( 0 ) : nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 );
+	auto ppFx2LayoutItem = layoutTypeAttributes[BINDING_LAYOUT_POST_PROCESS_FINAL2].cbStatic ? nvrhi::BindingLayoutItem::ConstantBuffer( 0 ) : nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 );
 
 	if( layoutTypeAttributes[BINDING_LAYOUT_POST_PROCESS_FINAL2].pcEnabled )
 	{
-		ppFxLayoutItem2 = nvrhi::BindingLayoutItem::PushConstants( 0, layoutTypeAttributes[BINDING_LAYOUT_POST_PROCESS_FINAL2].rpBufSize );
+		ppFx2LayoutItem = nvrhi::BindingLayoutItem::PushConstants( 0, layoutTypeAttributes[BINDING_LAYOUT_POST_PROCESS_FINAL2].rpBufSize );
 	}
 
-	auto ppFxBindingLayout2 = nvrhi::BindingLayoutDesc()
+	auto ppFx2BindingLayout = nvrhi::BindingLayoutDesc()
 							  .setVisibility( nvrhi::ShaderType::All )
-							  .addItem( ppFxLayoutItem2 )
+							  .addItem( ppFx2LayoutItem )
 							  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// LDR _currentRender
 							  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// _blueNoise
 							  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) )	// _currentNormals
 							  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) );	// _currentDepth
 
-	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_FINAL2] = { device->createBindingLayout( ppFxBindingLayout2 ), samplerTwoBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_FINAL2] = { device->createBindingLayout( ppFx2BindingLayout ), samplerTwoBindingLayout };
 
 	auto normalCubeBindingLayoutDesc = nvrhi::BindingLayoutDesc()
 									   .setVisibility( nvrhi::ShaderType::Pixel )
@@ -641,6 +641,37 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// normal map
 
 	bindingLayouts[BINDING_LAYOUT_BINK_VIDEO] = { device->createBindingLayout( binkVideoBindingLayout ), samplerOneBindingLayout };
+
+	auto smaaEdgeDetectionLayoutItem = layoutTypeAttributes[BINDING_LAYOUT_SMAA_EDGE_DETECTION].cbStatic ? nvrhi::BindingLayoutItem::ConstantBuffer( 0 ) : nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 );
+
+	if( layoutTypeAttributes[BINDING_LAYOUT_SMAA_EDGE_DETECTION].pcEnabled )
+	{
+		smaaEdgeDetectionLayoutItem = nvrhi::BindingLayoutItem::PushConstants( 0, layoutTypeAttributes[BINDING_LAYOUT_SMAA_EDGE_DETECTION].rpBufSize );
+	}
+
+	auto smaaEdgeDetectionBindingLayout = nvrhi::BindingLayoutDesc()
+										  .setVisibility( nvrhi::ShaderType::All )
+										  .addItem( smaaEdgeDetectionLayoutItem )
+										  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) );		// _smaaInput
+										//.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )		// _motionVectors
+
+	bindingLayouts[BINDING_LAYOUT_SMAA_EDGE_DETECTION] = { device->createBindingLayout( smaaEdgeDetectionBindingLayout ), samplerTwoBindingLayout };
+
+	auto smaaWeightCalcLayoutItem = layoutTypeAttributes[BINDING_LAYOUT_SMAA_WEIGHT_CALC].cbStatic ? nvrhi::BindingLayoutItem::ConstantBuffer( 0 ) : nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 );
+
+	if( layoutTypeAttributes[BINDING_LAYOUT_SMAA_WEIGHT_CALC].pcEnabled )
+	{
+		smaaWeightCalcLayoutItem = nvrhi::BindingLayoutItem::PushConstants( 0, layoutTypeAttributes[BINDING_LAYOUT_SMAA_WEIGHT_CALC].rpBufSize );
+	}
+
+	auto smaaWeightCalcBindingLayout = nvrhi::BindingLayoutDesc()
+									   .setVisibility( nvrhi::ShaderType::All )
+									   .addItem( smaaWeightCalcLayoutItem )
+									   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )		// _smaaEdges
+									   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )		// _smaaArea
+									   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );		// _smaaSearch
+
+	bindingLayouts[BINDING_LAYOUT_SMAA_WEIGHT_CALC] = { device->createBindingLayout( smaaWeightCalcBindingLayout ), samplerTwoBindingLayout };
 
 	auto motionVectorsLayoutItem = layoutTypeAttributes[BINDING_LAYOUT_TAA_MOTION_VECTORS].cbStatic ? nvrhi::BindingLayoutItem::ConstantBuffer( 0 ) : nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 );
 
@@ -843,15 +874,15 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_CRT_NUPIXIE, "builtin/post/crt_newpixie", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS_CRT ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_CRT },
 		{ BUILTIN_CRT_EASYMODE, "builtin/post/crt_advanced", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS_FINAL ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL }, // FINAL for linear filtering
 
-		{ BUILTIN_SCREEN, "builtin/post/screen", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
+		{ BUILTIN_SCREEN, "builtin/post/screen", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXGEN ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXGEN },
 		{ BUILTIN_TONEMAP, "builtin/post/tonemap", "", { { "BRIGHTPASS", "0" }, { "HDR_DEBUG", "0"}, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
 		{ BUILTIN_BRIGHTPASS, "builtin/post/tonemap", "_brightpass", { { "BRIGHTPASS", "1" }, { "HDR_DEBUG", "0"}, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
 		{ BUILTIN_HDR_GLARE_CHROMATIC, "builtin/post/hdr_glare_chromatic", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
 		{ BUILTIN_HDR_DEBUG, "builtin/post/tonemap", "_debug", { { "BRIGHTPASS", "0" }, { "HDR_DEBUG", "1"}, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
 
-		{ BUILTIN_SMAA_EDGE_DETECTION, "builtin/post/SMAA_edge_detection", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
-		{ BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION, "builtin/post/SMAA_blending_weight_calc", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
-		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "builtin/post/SMAA_final", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS },
+		{ BUILTIN_SMAA_EDGE_DETECTION, "builtin/post/SMAA_edge_detection", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_SMAA_EDGE_DETECTION ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_SMAA_EDGE_DETECTION },
+		{ BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION, "builtin/post/SMAA_blending_weight_calc", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_SMAA_WEIGHT_CALC ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_SMAA_WEIGHT_CALC },
+		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "builtin/post/SMAA_final", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS_FINAL ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
 
 		// SRS - changed from BUILTIN_MOTION_BLUR to BUILTIN_TAA_MOTION_VECTORS
 		{ BUILTIN_TAA_MOTION_VECTORS, "builtin/post/motionBlur", "_vectors", { { "VECTORS_ONLY", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },

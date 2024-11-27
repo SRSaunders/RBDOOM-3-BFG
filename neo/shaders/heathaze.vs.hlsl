@@ -73,7 +73,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	// using the X axis to the Y axis to calculate x.  It is an approximation to closely match
 	// what the original game did
 	const float magicProjectionAdjust = 0.43f;
-	float x = dot4( vec, pc.rpProjectionMatrixY ) * magicProjectionAdjust;
+	float x = vec.y * pc.rpProjectionMatrixY.y * magicProjectionAdjust;
 	float w = dot4( vec, pc.rpProjectionMatrixW );
 
 	// don't let the recip get near zero for polygons that cross the view plane

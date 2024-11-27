@@ -149,6 +149,12 @@ public:
 
 	void UpdateWindowSize( const glimpParms_t& params );
 
+	// RB: for OpenVR to submit native Vulkan images
+	virtual int GetGraphicsFamilyIndex() const
+	{
+		return -1;
+	}
+
 protected:
 	friend class idRenderBackend;
 	friend class idImage;

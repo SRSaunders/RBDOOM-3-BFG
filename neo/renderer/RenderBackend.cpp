@@ -2095,9 +2095,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
 
 		currentSpace = NULL;
-		auto mvp = renderMatrix_identity;
-		mvp[1][1] = -mvp[1][1]; // flip y
-		RB_SetMVP( mvp );
+		RB_SetMVP( renderMatrix_fullscreen );
 
 		renderProgManager.BindShader_Texture();
 		GL_Color( 1, 1, 1, 1 );
@@ -2123,7 +2121,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	{
 		globalFramebuffers.geometryBufferFBO->Bind();
 
-		GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
+		GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f );
 	}
 
 	// RB: not needed
@@ -2179,11 +2177,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		specularColor = lightColor;// * 0.5f;
 
 		float ambientBoost = 1.0f;
-		//if( !r_usePBR.GetBool() )
-		//{
-		//	ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
-		//	ambientBoost *= 1.1f;
-		//}
 
 		ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
 		ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
@@ -3432,7 +3425,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			continue;
 		}
 
-		if( vLight->shadowLOD == -1 )
+		if( vLight->shadowLOD == -1 || vLight->globalShadows == NULL )
 		{
 			// light doesn't cast shadows
 			continue;
@@ -3570,7 +3563,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			continue;
 		}
 
-		if( vLight->shadowLOD == -1 )
+		if( vLight->shadowLOD == -1 || vLight->globalShadows == NULL )
 		{
 			// light doesn't cast shadows
 			vLight->imageSize.x = vLight->imageSize.y = -1;
@@ -4713,19 +4706,26 @@ void idRenderBackend::DrawMotionVectors()
 	renderLog.OpenMainBlock( MRB_MOTION_VECTORS );
 	renderLog.OpenBlock( "Render_MotionVectors" );
 
-	// clear the alpha buffer and draw only the hands + weapon into it so
-	// we can avoid blurring them
+	// clear the alpha buffer
 	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
+
+	//globalFramebuffers.smaaInputFBO->Bind();
+	//commandList->clearTextureFloat( globalImages->smaaInputImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0, 0, 0, 1 ) );
+
+	// draw only the hands + weapon into the alpha buffer so
+	// we can avoid blurring them
+	GL_State( GLS_COLORMASK | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 	GL_Color( 0, 0, 0, 1 );
 
 	renderProgManager.BindShader_Color();
 
-	currentSpace = &viewDef->worldSpace;
-	RB_SetMVP( viewDef->worldSpace.mvp );
+	currentSpace = NULL;
+	RB_SetMVP( renderMatrix_fullscreen );
 
 	DrawElementsWithCounters( &unitSquareSurface );
 
 	// draw the hands + weapon with alpha 0
+	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
 	GL_Color( 0, 0, 0, 0 );
 
 	GL_SelectTexture( 0 );
@@ -4737,7 +4737,7 @@ void idRenderBackend::DrawMotionVectors()
 	{
 		const drawSurf_t* surf = drawSurfs[ surfNum ];
 
-		if( !surf->space->weaponDepthHack && !surf->space->skipMotionBlur && !surf->material->HasSubview() && !surf->space->isGuiSurface )
+		if( !surf->space->weaponDepthHack && !surf->space->skipMotionBlur && !surf->material->HasSubview() )//&& !surf->space->isGuiSurface )
 		{
 			// don't apply TAA to this object
 			continue;
@@ -5332,61 +5332,13 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		return;
 	}
 
-	if( renderSystem->GetStereo3DMode() != STEREO3D_OFF )
-	{
-		StereoRenderExecuteBackEndCommands( cmds );
-		return;
-	}
+	//if( renderSystem->GetStereo3DMode() != STEREO3D_OFF )
+	//{
+	//	StereoRenderExecuteBackEndCommands( cmds );
+	//	return;
+	//}
 
 	GL_StartFrame();
-
-	void* textureId = globalImages->hierarchicalZbufferImage->GetTextureID();
-
-	// RB: we need to load all images left before rendering
-	// this can be expensive here because of the runtime image compression
-	//globalImages->LoadDeferredImages( commandList );
-
-	if( !ssaoPass && r_useNewSsaoPass.GetBool() )
-	{
-		ssaoPass = new SsaoPass(
-			deviceManager->GetDevice(),
-			&commonPasses, globalImages->currentDepthImage->GetTextureHandle(),
-			globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(),
-			globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
-	}
-
-	if( globalImages->hierarchicalZbufferImage->GetTextureID() != textureId || !hiZGenPass )
-	{
-		if( hiZGenPass )
-		{
-			delete hiZGenPass;
-		}
-
-		hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
-	}
-
-
-	if( !toneMapPass )
-	{
-		TonemapPass::CreateParameters createParms;
-		toneMapPass = new TonemapPass();
-		toneMapPass->Init( deviceManager->GetDevice(), &commonPasses, createParms, globalFramebuffers.ldrFBO->GetApiObject() );
-	}
-
-	if( !taaPass )
-	{
-		TemporalAntiAliasingPass::CreateParameters taaParams;
-		taaParams.sourceDepth = globalImages->currentDepthImage->GetTextureHandle();
-		taaParams.motionVectors = globalImages->taaMotionVectorsImage->GetTextureHandle();
-		taaParams.unresolvedColor = globalImages->currentRenderHDRImage->GetTextureHandle();
-		taaParams.resolvedColor = globalImages->taaResolvedImage->GetTextureHandle();
-		taaParams.feedback1 = globalImages->taaFeedback1Image->GetTextureHandle();
-		taaParams.feedback2 = globalImages->taaFeedback2Image->GetTextureHandle();
-		taaParams.motionVectorStencilMask = 0; //0x01;
-		taaParams.useCatmullRomFilter = true;
-		taaPass = new TemporalAntiAliasingPass();
-		taaPass->Init( deviceManager->GetDevice(), &commonPasses, NULL, taaParams );
-	}
 
 	uint64 backEndStartTime = Sys_Microseconds();
 
@@ -5498,19 +5450,33 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// ugly but still faster than building the string
 	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
-		renderLog.OpenBlock( "Render_DrawView2D", colorRed );
+		if( stereoEye == -1 )
+		{
+			renderLog.OpenBlock( "Render_DrawView2D_LeftEye", colorRed );
+		}
+		else if( stereoEye == 1 )
+		{
+			renderLog.OpenBlock( "Render_DrawView2D_RightEye", colorRed );
+		}
+		else
+		{
+			renderLog.OpenBlock( "Render_DrawView2D", colorRed );
+		}
 	}
-	else if( stereoEye == -1 )
+	else
 	{
-		renderLog.OpenBlock( "Render_DrawView3D_LeftEye", colorRed );
-	}
-	else if( stereoEye == 1 )
-	{
-		renderLog.OpenBlock( "Render_DrawView3D_RightEye", colorRed );
-	}
-	else if( stereoEye == 0 )
-	{
-		renderLog.OpenBlock( "Render_DrawView3D", colorRed );
+		if( stereoEye == -1 )
+		{
+			renderLog.OpenBlock( "Render_DrawView3D_LeftEye", colorRed );
+		}
+		else if( stereoEye == 1 )
+		{
+			renderLog.OpenBlock( "Render_DrawView3D_RightEye", colorRed );
+		}
+		else
+		{
+			renderLog.OpenBlock( "Render_DrawView3D", colorRed );
+		}
 	}
 
 	//-------------------------------------------------
@@ -5579,7 +5545,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	{
 		OPTICK_GPU_EVENT( "Render_ClearDepthStencil" );
 
-		GL_Clear( clearColor, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
+		GL_Clear( clearColor, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f );
 	}
 
 	// RB end
@@ -5857,7 +5823,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetNativeWidth(), renderSystem->GetNativeHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
 		// blit envprobe over it for quick review where we are
@@ -5869,15 +5835,62 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	}
 	else
 	{
-		OPTICK_GPU_EVENT( "Blit_Rendered" );
+		OPTICK_GPU_EVENT( "Blit_Rendered2SwapChain" );
+		renderLog.OpenBlock( "Blit_Rendered2SwapChain", colorBlue );
 
 		// copy LDR result to DX12 / Vulkan swapchain image
+#if 0
+		if( vrSystem->IsActive() )
+		{
+			uint32_t swapChainIndex = deviceManager->GetCurrentBackBufferIndex();
 
-		BlitParameters blitParms;
-		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
-		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
-		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+			globalFramebuffers.swapFramebuffers[ swapChainIndex ]->Bind();
+
+			int width = globalFramebuffers.swapFramebuffers[ swapChainIndex ]->GetWidth();
+			int height = globalFramebuffers.swapFramebuffers[ swapChainIndex ]->GetHeight();
+
+			// set the window clipping
+			GL_Viewport( 0, 0, width, width );
+			GL_Scissor( 0, 0, width, height );
+
+			renderProgManager.BindShader_TextureVertexColor_sRGB();
+			//renderProgManager.BindShader_Screen();
+
+			currentSpace = NULL;
+			RB_SetMVP( renderMatrix_fullscreen );
+
+			renderProgManager.SetRenderParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
+
+			float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+			float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+			renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
+			renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
+
+			float texGenEnabled[4] = { 0, 0, 0, 0 };
+			renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
+			RB_SetVertexColorParms( SVC_IGNORE );
+
+			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
+
+			GL_SelectTexture( 0 );
+			globalImages->ldrImage->Bind();
+
+			DrawElementsWithCounters( &unitSquareSurface );
+
+			ResetViewportAndScissorToDefaultCamera( _viewDef );
+		}
+		else
+#endif
+			//if( stereoEye == 1 || stereoEye == 0 )
+		{
+			BlitParameters blitParms;
+			blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
+			blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
+			blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetNativeWidth(), renderSystem->GetNativeHeight() );
+			commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+		}
+
+		renderLog.CloseBlock();
 	}
 
 	renderLog.CloseBlock();
@@ -6162,21 +6175,20 @@ void idRenderBackend::PostProcess( const void* data )
 
 	if( viewDef->renderView.rdflags & RDF_IRRADIANCE )
 	{
-#if defined( USE_NVRHI )
 		OPTICK_GPU_EVENT( "Blit_EnvProbePostFX" );
 
 		// we haven't changed ldrImage so it's basically the previewsRenderLDR
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetNativeWidth(), renderSystem->GetNativeHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->envprobeHDRImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
 		blitParms.targetViewport = nvrhi::Viewport( ENVPROBE_CAPTURE_SIZE, ENVPROBE_CAPTURE_SIZE );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
-#endif
+
 		return;
 	}
 
@@ -6196,11 +6208,14 @@ void idRenderBackend::PostProcess( const void* data )
 	GL_Viewport( 0, 0, screenWidth, screenHeight );
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 
-#if 0
+#if 1
 	// SMAA
 	int aaMode = r_antiAliasing.GetInteger();
 	if( aaMode == ANTI_ALIASING_SMAA_1X )
 	{
+		OPTICK_GPU_EVENT( "Render_SMAA" );
+		renderLog.OpenBlock( "Render_SMAA" );
+
 		/*
 		 * The shader has three passes, chained together as follows:
 		 *
@@ -6219,8 +6234,6 @@ void idRenderBackend::PostProcess( const void* data )
 		 *                           |output|
 		*/
 
-		globalImages->smaaInputImage->CopyFramebuffer( 0, 0, screenWidth, screenHeight );
-
 		// set SMAA_RT_METRICS = rpScreenCorrectionFactor
 		float screenCorrectionParm[4];
 		screenCorrectionParm[0] = 1.0f / screenWidth;
@@ -6229,53 +6242,60 @@ void idRenderBackend::PostProcess( const void* data )
 		screenCorrectionParm[3] = screenHeight;
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 
-		globalFramebuffers.smaaEdgesFBO->Bind();
+		BlitParameters blitParms;
+		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
+		blitParms.targetFramebuffer = globalFramebuffers.smaaInputFBO->GetApiObject();
 
-		glClearColor( 0, 0, 0, 0 );
-		glClear( GL_COLOR_BUFFER_BIT );
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
-		GL_SelectTexture( 0 );
-		globalImages->smaaInputImage->Bind();
+		{
+			//                    [ SMAA*EdgeDetection ]
+			globalFramebuffers.smaaEdgesFBO->Bind();
 
-		renderProgManager.BindShader_SMAA_EdgeDetection();
-		DrawElementsWithCounters( &unitSquareSurface );
+			GL_Clear( true, false, false, 128, 0, 0, 0, 0 );
 
-#if 1
-		//globalImages->smaaEdgesImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+			GL_SelectTexture( 0 );
+			globalImages->smaaInputImage->Bind();
 
-		globalFramebuffers.smaaBlendFBO->Bind();
-		//Framebuffer::Unbind();
+			renderProgManager.BindShader_SMAA_EdgeDetection();
+			DrawElementsWithCounters( &unitSquareSurface );
+		}
 
-		glClear( GL_COLOR_BUFFER_BIT );
+		{
+			//              [ SMAABlendingWeightCalculation ]
+			globalFramebuffers.smaaBlendFBO->Bind();
 
-		GL_SelectTexture( 0 );
-		globalImages->smaaEdgesImage->Bind();
+			GL_Clear( true, false, false, 128, 0, 0, 0, 0 );
 
-		GL_SelectTexture( 1 );
-		globalImages->smaaAreaImage->Bind();
+			GL_SelectTexture( 0 );
+			globalImages->smaaEdgesImage->Bind();
 
-		GL_SelectTexture( 2 );
-		globalImages->smaaSearchImage->Bind();
+			GL_SelectTexture( 1 );
+			globalImages->smaaAreaImage->Bind();
 
-		renderProgManager.BindShader_SMAA_BlendingWeightCalculation();
-		DrawElementsWithCounters( &unitSquareSurface );
+			GL_SelectTexture( 2 );
+			globalImages->smaaSearchImage->Bind();
 
-		Framebuffer::Unbind();
-#endif
+			renderProgManager.BindShader_SMAA_BlendingWeightCalculation();
+			DrawElementsWithCounters( &unitSquareSurface );
+		}
 
-#if 1
-		//GL_SelectTexture( 0 );
-		//globalImages->smaaBlendImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		{
+			//                [ SMAANeighborhoodBlending ]
+			globalFramebuffers.ldrFBO->Bind();
 
-		GL_SelectTexture( 0 );
-		globalImages->smaaInputImage->Bind();
+			GL_SelectTexture( 0 );
+			globalImages->smaaInputImage->Bind();
 
-		GL_SelectTexture( 1 );
-		globalImages->smaaBlendImage->Bind();
+			GL_SelectTexture( 1 );
+			globalImages->smaaBlendImage->Bind();
 
-		renderProgManager.BindShader_SMAA_NeighborhoodBlending();
-		DrawElementsWithCounters( &unitSquareSurface );
-#endif
+			renderProgManager.BindShader_SMAA_NeighborhoodBlending();
+			DrawElementsWithCounters( &unitSquareSurface );
+		}
+
+		renderLog.CloseBlock();
 	}
 #endif
 
@@ -6474,7 +6494,7 @@ void idRenderBackend::PostProcess( const void* data )
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetNativeWidth(), renderSystem->GetNativeHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
 		// copy LDR result to postProcFBO which is HDR but also used by postFX
@@ -6640,7 +6660,7 @@ void idRenderBackend::CRTPostProcess()
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetNativeWidth(), renderSystem->GetNativeHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 	}
 

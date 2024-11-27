@@ -592,10 +592,10 @@ public:
 	idImage*			taaFeedback1Image;
 	idImage*			taaFeedback2Image;
 	idImage*			bloomRenderImage[2];
-	idImage*			glowImage[2];					// contains any glowable surface information.
-	idImage*			glowDepthImage[2];
-	idImage*			accumTransparencyImage;
-	idImage*			revealTransparencyImage;
+	//idImage*			glowImage[2];					// contains any glowable surface information.
+	//idImage*			glowDepthImage[2];
+	//idImage*			accumTransparencyImage;
+	//idImage*			revealTransparencyImage;
 	idImage*			envprobeHDRImage;
 	idImage*			envprobeDepthImage;
 	idImage*			heatmap5Image;
