@@ -330,7 +330,6 @@ bool VKimp_Init( glimpParms_t parms )
 
 	// RB begin
 	glConfig.displayFrequency = GetDisplayFrequency( parms );
-	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.multisamples = parms.multiSamples;
 
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
@@ -523,7 +522,6 @@ bool VKimp_SetScreenParms( glimpParms_t parms )
 	}
 
 	glConfig.isFullscreen = parms.fullScreen;
-	glConfig.isStereoPixelFormat = parms.stereo;
 
 	// SRS - Get window's client area dimensions to set new render size
 	SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
