@@ -170,6 +170,24 @@ static void R_CyanImage( idImage* image, nvrhi::ICommandList* commandList )
 	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_DIFFUSE, commandList );
 }
 
+static void R_RedClayImage( idImage* image, nvrhi::ICommandList* commandList )
+{
+	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+
+	for( int x = 0; x < DEFAULT_SIZE; x++ )
+	{
+		for( int y = 0; y < DEFAULT_SIZE; y++ )
+		{
+			data[y][x][0] = 165;
+			data[y][x][1] = 42;
+			data[y][x][2] = 42;
+			data[y][x][3] = 255;
+		}
+	}
+
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_DIFFUSE, commandList );
+}
+
 static void R_ChromeSpecImage( idImage* image, nvrhi::ICommandList* commandList )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
@@ -181,7 +199,7 @@ static void R_ChromeSpecImage( idImage* image, nvrhi::ICommandList* commandList 
 			data[y][x][0] = 0;
 			data[y][x][1] = 255;
 			data[y][x][2] = 255;
-			data[y][x][3] = 255;
+			data[y][x][3] = 128;
 		}
 	}
 
@@ -196,10 +214,10 @@ static void R_PlasticSpecImage( idImage* image, nvrhi::ICommandList* commandList
 	{
 		for( int y = 0; y < DEFAULT_SIZE; y++ )
 		{
-			data[y][x][0] = 0;
+			data[y][x][0] = 32;
 			data[y][x][1] = 0;
 			data[y][x][2] = 255;
-			data[y][x][3] = 255;
+			data[y][x][3] = 128;
 		}
 	}
 
@@ -1046,6 +1064,7 @@ void idImageManager::CreateIntrinsicImages()
 	blackImage = ImageFromFunction( "_black", R_BlackImage );
 	blackDiffuseImage = ImageFromFunction( "_blackDiffuse", R_BlackDiffuseImage );
 	cyanImage = ImageFromFunction( "_cyan", R_CyanImage );
+	redClayImage = ImageFromFunction( "_redClay", R_RedClayImage );
 	flatNormalMap = ImageFromFunction( "_flat", R_FlatNormalImage );
 	alphaNotchImage = ImageFromFunction( "_alphaNotch", R_AlphaNotchImage );
 	fogImage = ImageFromFunction( "_fog", R_FogImage );

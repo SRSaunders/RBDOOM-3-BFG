@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2016-2024 Robert Beckebans
+Copyright (C) 2024 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,11 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "global_inc.hlsl"
-#include "renderParmSet3.inc.hlsl"
 
 // *INDENT-OFF*
 #if USE_GPU_SKINNING
-StructuredBuffer<float4> matrices : register( t11 );
+StructuredBuffer<float4> matrices : register(t11);
 #endif
 
 struct VS_IN
@@ -48,11 +47,12 @@ struct VS_IN
 struct VS_OUT
 {
 	float4 position		: SV_Position;
-	float3 texcoord0	: TEXCOORD0_centroid;
+	float2 texcoord0	: TEXCOORD0_centroid;
 	float3 texcoord1	: TEXCOORD1_centroid;
 	float3 texcoord2	: TEXCOORD2_centroid;
 	float3 texcoord3	: TEXCOORD3_centroid;
 	float3 texcoord4	: TEXCOORD4_centroid;
+	float4 texcoord5	: TEXCOORD5_centroid;
 	float4 color		: COLOR0;
 };
 // *INDENT-ON*
@@ -126,76 +126,54 @@ void main( VS_IN vertex, out VS_OUT result )
 	float3 bitangent = vBitangent.xyz;
 #endif
 
-	result.position.x = dot4( modelPosition, pc.rpMVPmatrixX );
-	result.position.y = dot4( modelPosition, pc.rpMVPmatrixY );
-	result.position.z = dot4( modelPosition, pc.rpMVPmatrixZ );
-	result.position.w = dot4( modelPosition, pc.rpMVPmatrixW );
+	result.position.x = dot4( modelPosition, rpMVPmatrixX );
+	result.position.y = dot4( modelPosition, rpMVPmatrixY );
+	result.position.z = dot4( modelPosition, rpMVPmatrixZ );
+	result.position.w = dot4( modelPosition, rpMVPmatrixW );
 
-	result.position.xyz = psxVertexJitter( pc.rpPSXDistortions, pc.rpProjectionMatrixW, result.position );
+	result.position.xyz = psxVertexJitter( result.position );
 
-	// textures 0 takes the base coordinates by the texture matrix
-	result.texcoord0.x = dot4( vertex.texcoord.xy, pc.rpBumpMatrixS );
-	result.texcoord0.y = dot4( vertex.texcoord.xy, pc.rpBumpMatrixT );
-
-	//# textures 1 takes the base coordinates by the texture matrix
-	result.texcoord1.x = dot4( vertex.texcoord.xy, pc.rpSpecularMatrixS );
-	result.texcoord1.y = dot4( vertex.texcoord.xy, pc.rpSpecularMatrixT );
+	result.texcoord0 = vertex.texcoord.xy;
 
 	// PSX affine texture mapping
-	if( pc.rpPSXDistortions.z > 0.0 )
+#if 0
+	if( rpPSXDistortions.z > 0.0 )
 	{
-		float distance = length( pc.rpLocalViewOrigin - modelPosition );
+		float distance = length( rpLocalViewOrigin - modelPosition );
 		float warp =  psxAffineWarp( distance );
 
 		result.texcoord0.z = warp;
 		result.texcoord0.xy *= warp;
 		result.texcoord1.xy *= warp;
+		result.texcoord2.xy *= warp;
 	}
+#endif
 
-	//float4 toEye = pc.rpLocalViewOrigin - modelPosition;
-	//result.texcoord1.x = dot3( toEye, pc.rpModelMatrixX );
-	//result.texcoord1.y = dot3( toEye, pc.rpModelMatrixY );
-	//result.texcoord1.z = dot3( toEye, pc.rpModelMatrixZ );
+	float4 toEye = rpLocalViewOrigin - modelPosition;
 
-#if 1
+	result.texcoord1.x = dot3( toEye, rpModelMatrixX );
+	result.texcoord1.y = dot3( toEye, rpModelMatrixY );
+	result.texcoord1.z = dot3( toEye, rpModelMatrixZ );
+
 	// rotate from tangent space into world space
-	result.texcoord2.x = dot3( tangent, pc.rpModelMatrixX );
-	result.texcoord3.x = dot3( tangent, pc.rpModelMatrixY );
-	result.texcoord4.x = dot3( tangent, pc.rpModelMatrixZ );
+	result.texcoord2.x = dot3( tangent, rpModelMatrixX );
+	result.texcoord3.x = dot3( tangent, rpModelMatrixY );
+	result.texcoord4.x = dot3( tangent, rpModelMatrixZ );
 
-	result.texcoord2.y = dot3( bitangent, pc.rpModelMatrixX );
-	result.texcoord3.y = dot3( bitangent, pc.rpModelMatrixY );
-	result.texcoord4.y = dot3( bitangent, pc.rpModelMatrixZ );
+	result.texcoord2.y = dot3( bitangent, rpModelMatrixX );
+	result.texcoord3.y = dot3( bitangent, rpModelMatrixY );
+	result.texcoord4.y = dot3( bitangent, rpModelMatrixZ );
 
-	result.texcoord2.z = dot3( normal, pc.rpModelMatrixX );
-	result.texcoord3.z = dot3( normal, pc.rpModelMatrixY );
-	result.texcoord4.z = dot3( normal, pc.rpModelMatrixZ );
+	result.texcoord2.z = dot3( normal, rpModelMatrixX );
+	result.texcoord3.z = dot3( normal, rpModelMatrixY );
+	result.texcoord4.z = dot3( normal, rpModelMatrixZ );
 
-#else
-	// rotate from tangent space into view space
-	result.texcoord2.x = dot3( tangent, pc.rpModelViewMatrixX );
-	result.texcoord3.x = dot3( tangent, pc.rpModelViewMatrixY );
-	result.texcoord4.x = dot3( tangent, pc.rpModelViewMatrixZ );
+	float4 worldPosition;
+	worldPosition.x = dot4( modelPosition, rpModelMatrixX );
+	worldPosition.y = dot4( modelPosition, rpModelMatrixY );
+	worldPosition.z = dot4( modelPosition, rpModelMatrixZ );
+	worldPosition.w = dot4( modelPosition, rpModelMatrixW );
+	result.texcoord5 = worldPosition;
 
-	result.texcoord2.y = dot3( bitangent, pc.rpModelViewMatrixX );
-	result.texcoord3.y = dot3( bitangent, pc.rpModelViewMatrixY );
-	result.texcoord4.y = dot3( bitangent, pc.rpModelViewMatrixZ );
-
-	result.texcoord2.z = dot3( normal, pc.rpModelViewMatrixX );
-	result.texcoord3.z = dot3( normal, pc.rpModelViewMatrixY );
-	result.texcoord4.z = dot3( normal, pc.rpModelViewMatrixZ );
-#endif
-
-#if USE_GPU_SKINNING
-	// for joint transformation of the tangent space, we use color and
-	// color2 for weighting information, so hopefully there aren't any
-	// effects that need vertex color...
-	result.color = float4( 1.0f, 1.0f, 1.0f, 1.0f );
-#else
-	//# generate the vertex color, which can be 1.0, color, or 1.0 - color
-	//# for 1.0 : env[16] = 0, env[17] = 1
-	//# for color : env[16] = 1, env[17] = 0
-	//# for 1.0-color : env[16] = -1, env[17] = 1
-	result.color = ( swizzleColor( vertex.color ) * pc.rpVertexColorModulate ) + pc.rpVertexColorAdd;
-#endif
+	result.color = rpColor;
 }

@@ -1918,6 +1918,10 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			{
 				ts->texgen = TG_REFLECT_CUBE;
 			}
+			else if( !token.Icmp( "reflect2" ) )
+			{
+				ts->texgen = TG_REFLECT_CUBE2;
+			}
 			else if( !token.Icmp( "skybox" ) )
 			{
 				ts->texgen = TG_SKYBOX_CUBE;
@@ -2760,6 +2764,11 @@ void idMaterial::ParseMaterial( idLexer& src )
 		else if( !token.Icmp( "mikktspace" ) )
 		{
 			mikktspace = true;
+			continue;
+		}
+		else if( !token.Icmp( "unlit" ) )
+		{
+			SetMaterialFlag( MF_UNLIT );
 			continue;
 		}
 		// lightFallofImage <imageprogram>
