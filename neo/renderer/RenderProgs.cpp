@@ -206,7 +206,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		rpMaximalSet10.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
 		rpMaximalSet11.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
 		rpNominalSet12.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) ||
-		rpNominalSet13.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) )
+		rpNominalSet13.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) ||
+		rpMaximalSet14.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) )
 	{
 		common->FatalError( "Renderparm subset sizes exceed push constant buffer sizes" );
 	}
@@ -367,6 +368,17 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 			for( int i = 0; i < rpNominalSet13.Num(); i++ )
 			{
 				renderParmLayoutTypes[rpNominalSet13[i]].AddUnique( ( bindingLayoutType_t )layoutType );
+			}
+		}
+		else if( rpMaximalSet14LayoutTypes.Find( ( bindingLayoutType_t )layoutType ) )
+		{
+			layoutTypeAttributes[layoutType].rpSubSet  = renderParmSet14;
+			layoutTypeAttributes[layoutType].rpBufSize = rpMaximalSet14.Num() * sizeof( idVec4 );
+			layoutTypeAttributes[layoutType].cbStatic  = false;
+
+			for( int i = 0; i < rpMaximalSet14.Num(); i++ )
+			{
+				renderParmLayoutTypes[rpMaximalSet14[i]].AddUnique( ( bindingLayoutType_t )layoutType );
 			}
 		}
 		else

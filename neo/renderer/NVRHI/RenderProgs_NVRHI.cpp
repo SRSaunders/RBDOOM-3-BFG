@@ -506,6 +506,15 @@ void idRenderProgManager::SelectUniforms( renderParmSet_t* renderParmSet, int bi
 			break;
 		}
 
+		case renderParmSet14:
+		{
+			for( int i = 0; i < rpMaximalSet14.Num(); i++ )
+			{
+				memcpy( &renderParmSet->maximalSet[i], &uniforms[rpMaximalSet14[i]], sizeof( idVec4 ) );
+			}
+			break;
+		}
+
 		case renderParmNullSet:
 		default:
 		{

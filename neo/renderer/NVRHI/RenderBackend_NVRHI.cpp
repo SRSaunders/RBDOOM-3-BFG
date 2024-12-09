@@ -1790,16 +1790,14 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			{
 				desc[0].bindings =
 				{
-					nvrhi::BindingSetItem::ConstantBuffer( 0,  paramCb, range ),
+					uniformsBindingSetItem,
 					nvrhi::BindingSetItem::StructuredBuffer_SRV( 11, currentJointBuffer, nvrhi::Format::UNKNOWN, nvrhi::BufferRange( currentJointOffset, sizeof( idVec4 ) * numBoneMatrices ) )
 				};
 			}
 			else
 			{
 				auto& bindings = desc[0].bindings;
-				bindings[0].resourceHandle = paramCb;
-				bindings[0].range = range;
-
+				bindings[0] = uniformsBindingSetItem;
 				bindings[1].resourceHandle = currentJointBuffer;
 				bindings[1].range = nvrhi::BufferRange{ currentJointOffset, sizeof( idVec4 )* numBoneMatrices };
 			}
@@ -1810,13 +1808,12 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			{
 				desc[0].bindings =
 				{
-					nvrhi::BindingSetItem::ConstantBuffer( 0, paramCb, range ),
+					uniformsBindingSetItem,
 				};
 			}
 			else
 			{
-				desc[0].bindings[0].resourceHandle = paramCb;
-				desc[0].bindings[0].range = range;
+				desc[0].bindings[0] = uniformsBindingSetItem;
 			}
 		}
 
