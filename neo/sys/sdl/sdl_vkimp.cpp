@@ -563,7 +563,7 @@ void VKimp_Shutdown( bool shutdownSDL )
 	}
 }
 
-/* Eric: Is this needed/used for Vulkan?
+/*
 =================
 VKimp_SetGamma
 =================
@@ -576,12 +576,11 @@ void VKimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 		return;
 	}
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
+	// TODO remove
 	if( SDL_SetWindowGammaRamp( window, red, green, blue ) )
-#else
-	if( SDL_SetGammaRamp( red, green, blue ) )
-#endif
+	{
 		common->Warning( "Couldn't set gamma ramp: %s", SDL_GetError() );
+	}
 }
 
 void VKimp_GrabInput( int flags )

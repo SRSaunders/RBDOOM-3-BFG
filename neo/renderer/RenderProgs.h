@@ -476,7 +476,6 @@ enum
 	BUILTIN_POSTPROCESS_RETRO_2BIT,		// CGA, Gameboy, cool for Gamejams
 	BUILTIN_POSTPROCESS_RETRO_C64,		// Commodore 64
 	BUILTIN_POSTPROCESS_RETRO_CPC,		// Amstrad 6128
-	BUILTIN_POSTPROCESS_RETRO_NES,		// NES
 	BUILTIN_POSTPROCESS_RETRO_GENESIS,	// Sega Genesis / Megadrive
 	BUILTIN_POSTPROCESS_RETRO_PSX,		// Sony Playstation 1
 	BUILTIN_CRT_MATTIAS,
@@ -961,11 +960,6 @@ public:
 	void	BindShader_PostProcess_Retro2Bit()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_2BIT );
-	}
-
-	void	BindShader_PostProcess_RetroNES()
-	{
-		BindShader_Builtin( BUILTIN_POSTPROCESS_RETRO_NES );
 	}
 
 	void	BindShader_PostProcess_RetroGenesis()
