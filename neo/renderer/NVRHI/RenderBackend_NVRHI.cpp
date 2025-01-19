@@ -478,9 +478,9 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf, bool sha
 		stateScissor = context.scissor;
 	}
 
-	// SRS - don't check if binding layout type changed since it is already handled above and renderparm change detection
-	//		 logic is sufficient to control writing of the constant buffer / push constants for each binding layout type
-	if( renderProgManager.CommitConstantBuffer( commandList, false /*bindingLayoutType != prevBindingLayoutType*/ ) )
+	// SRS - generate and commit a new volatile constant buffer if uniforms or binding layout type have changed
+	//     - for push constants return change status only, uniforms will be written after set graphics state
+	if( renderProgManager.CommitConstantBuffer( commandList, bindingLayoutType != prevBindingLayoutType ) )
 	{
 		if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 		{
