@@ -74,6 +74,11 @@ bool ReleaseMouseForTools()
 
 void DrawToolWindows()
 {
+	if( !AreEditorsActive() )
+	{
+		return;
+	}
+
 	if( LightEditor::Instance().IsShown() )
 	{
 		LightEditor::Instance().Draw();
