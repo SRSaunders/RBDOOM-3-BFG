@@ -163,7 +163,6 @@ protected:
 	void* windowInstance;
 	void* windowHandle;
 	bool m_windowVisible = false;
-	bool isNvidia = false;
 
 	DeviceCreationParameters m_DeviceParams;
 
@@ -174,6 +173,8 @@ protected:
 	uint32_t m_FrameIndex = 0;
 
 	DeviceManager() = default;
+
+	graphicsVendor_t getGPUVendor( uint32_t vendorID ) const;
 
 	void BackBufferResizing();
 	void BackBufferResized();
