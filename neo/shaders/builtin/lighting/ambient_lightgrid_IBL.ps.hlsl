@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2021 Robert Beckebans
+Copyright (C) 2013-2025 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -149,6 +149,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	const float metallic = specMapSRGB.g;
 	const float roughness = specMapSRGB.r;
 	const float glossiness = 1.0 - roughness;
+	float ao = specMapSRGB.b;
 
 	// the vast majority of real-world materials (anything not metal or gems) have F(0)
 	// values in a very narrow range (~0.02 - 0.08)
@@ -171,6 +172,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS ) * ( 1.0 - metallic );
 
 #else
+
+	float ao = 1.0;
 
 #if KENNY_PBR
 	float3 diffuseColor = diffuseMap;
@@ -204,10 +207,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	//float2 screenTexCoord = vposToScreenPosTexCoord( fragment.position.xy );
 	float2 screenTexCoord = fragment.position.xy * pc.rpWindowCoord.xy;
 
-	float ao = 1.0;
-	ao = t_Ssao.Sample( s_LinearClamp, screenTexCoord ).r;
-
-	//diffuseColor.rgb *= ao;
+	ao = min( ao,  t_Ssao.Sample( s_LinearClamp, screenTexCoord ).r );
 
 	// evaluate diffuse IBL
 
@@ -382,13 +382,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	float specAO = ComputeSpecularAO( vDotN, ao, roughness );
 	float3 specularLight = radiance * ( kS * envBRDF.x + envBRDF.y ) * specAO * ( pc.rpSpecularModifier.xyz * 1.0 );
 
-#if 1
 	// Marmoset Horizon Fade trick
 	const half horizonFade = 1.3;
 	half horiz = saturate( 1.0 + horizonFade * saturate( dot3( reflectionVector, globalNormal ) ) );
 	horiz *= horiz;
 	//horiz = clamp( horiz, 0.0, 1.0 );
-#endif
 
 	//float3 lightColor = sRGBToLinearRGB( pc.rpAmbientColor.rgb );
 	float3 lightColor = ( pc.rpAmbientColor.rgb );

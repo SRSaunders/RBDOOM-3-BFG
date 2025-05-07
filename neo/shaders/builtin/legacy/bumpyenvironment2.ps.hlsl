@@ -391,7 +391,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	radiance += t_RadianceCubeMap2.SampleLevel( s_LinearClamp, octCoord1, mip ).rgb * pc.rpLocalLightOrigin.y;
 	radiance += t_RadianceCubeMap3.SampleLevel( s_LinearClamp, octCoord2, mip ).rgb * pc.rpLocalLightOrigin.z;
 
-#if 1
+#if USE_SSR
 	// Screen Space Reflections
 
 	float3 rayDir;
