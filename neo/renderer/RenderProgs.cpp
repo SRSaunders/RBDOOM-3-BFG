@@ -391,10 +391,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		layoutTypeAttributes[layoutType].pcEnabled = layoutTypeAttributes[layoutType].rpBufSize <= deviceManager->m_DeviceParams.maxPushConstantSize;
 	}
 
-#if	defined(USE_INTRINSICS_SSE)	// USE_INTRINSICS_SSE is a portable proxy for x86 and is disabled when compiling or x-compiling to arm64 on macOS
-	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	// SRS - Perform runtime check for Vulkan running on x86-based vs. Apple Silicon hosts since this has to work for Universal Binaries on macOS
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN && glConfig.vendor != VENDOR_APPLE )
 	{
-		// SRS - FIXME: Disable Vulkan push constants for select layout types to reduce GPU Timeout Errors (seen on Intel/Linux and Intel/macOS)
+		// SRS - FIXME: Disable Vulkan push constants for select layout types to reduce GPU Timeout Errors (seen on x86_64/Linux and x86_64/macOS)
 		//     - Possibly due to exceeding pc buffer limits (nvrhi or driver) or imperfect logic for push constant uniforms change detection - TBD
 		//     - Note these correspond to rpNominalSet3LayoutTypes and rpNominalSet4LayoutTypes for rpNominalSet3 and rpNominalSet4 renderparm sets
 		layoutTypeAttributes[BINDING_LAYOUT_GBUFFER].pcEnabled = false;
@@ -402,7 +402,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		layoutTypeAttributes[BINDING_LAYOUT_TEXTURE].pcEnabled = false;
 		layoutTypeAttributes[BINDING_LAYOUT_TEXTURE_SKINNED].pcEnabled = false;
 	}
-#endif
 
 	auto defaultLayoutDesc = nvrhi::BindingLayoutDesc()
 							 .setVisibility( nvrhi::ShaderType::Pixel )
