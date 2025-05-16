@@ -89,17 +89,17 @@ nvrhi::BindingLayoutHandle idRenderProgManager::uniformsLayout( bindingLayoutTyp
 	if( skinning )
 	{
 		auto skinningLayoutDesc = nvrhi::BindingLayoutDesc()
-									.setVisibility( nvrhi::ShaderType::All )
-									.addItem( rpLayoutItem )
-									.addItem( nvrhi::BindingLayoutItem::StructuredBuffer_SRV( 11 ) ); // joint buffer;
+								  .setVisibility( nvrhi::ShaderType::All )
+								  .addItem( rpLayoutItem )
+								  .addItem( nvrhi::BindingLayoutItem::StructuredBuffer_SRV( 11 ) ); // joint buffer;
 
 		return device->createBindingLayout( skinningLayoutDesc );
 	}
 	else
 	{
 		auto uniformsLayoutDesc = nvrhi::BindingLayoutDesc()
-									.setVisibility( nvrhi::ShaderType::All )
-									.addItem( rpLayoutItem );
+								  .setVisibility( nvrhi::ShaderType::All )
+								  .addItem( rpLayoutItem );
 
 		return device->createBindingLayout( uniformsLayoutDesc );
 	}
@@ -194,20 +194,20 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	// SRS - Check to make sure renderparm subsets are within push constant size limits
 	if( rpMinimalSet0.Num() * sizeof( idVec4 )  > sizeof( rpMinimalSet ) ||
-		rpMinimalSet1.Num() * sizeof( idVec4 )  > sizeof( rpMinimalSet ) ||
-	    rpMinimalSet2.Num() * sizeof( idVec4 )  > sizeof( rpMinimalSet ) ||
-	    rpNominalSet3.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
-	    rpNominalSet4.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
-	    rpNominalSet5.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
-	    rpNominalSet6.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
-		rpNominalSet7.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
-		rpNominalSet8.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
-		rpMaximalSet9.Num() * sizeof( idVec4 )  > sizeof( rpMaximalSet ) ||
-		rpMaximalSet10.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
-		rpMaximalSet11.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
-		rpNominalSet12.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) ||
-		rpNominalSet13.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) ||
-		rpMaximalSet14.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) )
+			rpMinimalSet1.Num() * sizeof( idVec4 )  > sizeof( rpMinimalSet ) ||
+			rpMinimalSet2.Num() * sizeof( idVec4 )  > sizeof( rpMinimalSet ) ||
+			rpNominalSet3.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
+			rpNominalSet4.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
+			rpNominalSet5.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
+			rpNominalSet6.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
+			rpNominalSet7.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
+			rpNominalSet8.Num() * sizeof( idVec4 )  > sizeof( rpNominalSet ) ||
+			rpMaximalSet9.Num() * sizeof( idVec4 )  > sizeof( rpMaximalSet ) ||
+			rpMaximalSet10.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
+			rpMaximalSet11.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) ||
+			rpNominalSet12.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) ||
+			rpNominalSet13.Num() * sizeof( idVec4 ) > sizeof( rpNominalSet ) ||
+			rpMaximalSet14.Num() * sizeof( idVec4 ) > sizeof( rpMaximalSet ) )
 	{
 		common->FatalError( "Renderparm subset sizes exceed push constant buffer sizes" );
 	}
@@ -698,7 +698,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 										  .setVisibility( nvrhi::ShaderType::All )
 										  .addItem( smaaEdgeDetectionLayoutItem )
 										  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) );		// _smaaInput
-										//.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )		// _motionVectors
+	//.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )		// _motionVectors
 
 	bindingLayouts[BINDING_LAYOUT_SMAA_EDGE_DETECTION] = { device->createBindingLayout( smaaEdgeDetectionBindingLayout ), samplerTwoBindingLayout };
 
@@ -795,7 +795,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	}
 
 	// SRS - added support for runtime configuration of push constants
-	#define usePushConstants( layoutType ) ( layoutTypeAttributes[layoutType].pcEnabled ? "1" : "0" )
+#define usePushConstants( layoutType ) ( layoutTypeAttributes[layoutType].pcEnabled ? "1" : "0" )
 
 	// RB: added checks for GPU skinning
 	struct builtinShaders_t
