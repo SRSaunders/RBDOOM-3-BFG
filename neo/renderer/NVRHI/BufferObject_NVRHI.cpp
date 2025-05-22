@@ -220,8 +220,10 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 		VmaAllocationCreateInfo allocCreateInfo = {};
 		if( usage == BU_DYNAMIC )
 		{
-			allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+			// SRS - Use VMA_MEMORY_USAGE_AUTO + VK_MEMORY_PROPERTY_HOST_COHERENT_BIT to select device local memory where available
+			allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 			allocCreateInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			allocCreateInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 		}
 		else
 		{
@@ -488,8 +490,10 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 		VmaAllocationCreateInfo allocCreateInfo = {};
 		if( usage == BU_DYNAMIC )
 		{
-			allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+			// SRS - Use VMA_MEMORY_USAGE_AUTO + VK_MEMORY_PROPERTY_HOST_COHERENT_BIT to select device local memory where available
+			allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 			allocCreateInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			allocCreateInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 		}
 		else
 		{
@@ -759,8 +763,10 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 		VmaAllocationCreateInfo allocCreateInfo = {};
 		if( usage == BU_DYNAMIC )
 		{
-			allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+			// SRS - Use VMA_MEMORY_USAGE_AUTO + VK_MEMORY_PROPERTY_HOST_COHERENT_BIT to select device local memory where available
+			allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 			allocCreateInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			allocCreateInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 		}
 		else
 		{
