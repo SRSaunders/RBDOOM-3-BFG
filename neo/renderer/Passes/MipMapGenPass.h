@@ -75,6 +75,8 @@ private:
 	std::shared_ptr<NullTextures> m_NullTextures;
 
 	BindingCache m_BindingCache;
+
+	bool pcEnabled = false; // true if push constants are used
 };
 
 #endif

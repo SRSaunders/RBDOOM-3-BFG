@@ -388,7 +388,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 			layoutTypeAttributes[layoutType].cbStatic  = false;
 		}
 
-		layoutTypeAttributes[layoutType].pcEnabled = layoutTypeAttributes[layoutType].rpBufSize <= deviceManager->m_DeviceParams.maxPushConstantSize;
+		layoutTypeAttributes[layoutType].pcEnabled = layoutTypeAttributes[layoutType].rpBufSize <= deviceManager->GetMaxPushConstantSize();
 	}
 
 	// SRS - Perform runtime check for Vulkan running on x86-based vs. Apple Silicon hosts since this has to work for Universal Binaries on macOS
