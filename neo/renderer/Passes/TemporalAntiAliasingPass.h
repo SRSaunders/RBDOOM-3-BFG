@@ -22,7 +22,6 @@
 
 #pragma once
 
-
 #include <nvrhi/nvrhi.h>
 #include <memory>
 
@@ -74,7 +73,6 @@ class TemporalAntiAliasingPass
 private:
 	CommonRenderPasses* m_CommonPasses;
 
-	// SRS - Motion Vectors are generated using motionBlur shader in graphics pipeline instead of donut shader
 	nvrhi::ShaderHandle m_TemporalAntiAliasingCS;
 	nvrhi::SamplerHandle m_BilinearSampler;
 	nvrhi::BufferHandle m_TemporalAntiAliasingCB;
@@ -88,6 +86,8 @@ private:
 	uint32_t m_StencilMask;
 
 	idVec2 m_R2Jitter;
+
+	bool pcEnabled = false; // true if push constants are used
 
 public:
 	struct CreateParameters
