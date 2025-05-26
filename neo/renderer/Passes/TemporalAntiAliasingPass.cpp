@@ -111,14 +111,14 @@ void TemporalAntiAliasingPass::Init(
 #if ID_MSAA
 	case ANTI_ALIASING_MSAA_2X:
 		{
-			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_2X );
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_TAA_RESOLVE_MSAA_2X_PC : BUILTIN_TAA_RESOLVE_MSAA_2X );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			break;
 		}
 
 	case ANTI_ALIASING_MSAA_4X:
 		{
-			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_4X );
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_TAA_RESOLVE_MSAA_4X_PC : BUILTIN_TAA_RESOLVE_MSAA_4X );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			break;
 		}
@@ -129,7 +129,7 @@ void TemporalAntiAliasingPass::Init(
 
 		//default:
 		{
-			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE );
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_TAA_RESOLVE_PC : BUILTIN_TAA_RESOLVE );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			//break;
 		}

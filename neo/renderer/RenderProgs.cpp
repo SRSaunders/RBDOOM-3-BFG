@@ -735,41 +735,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	bindingLayouts[BINDING_LAYOUT_TAA_RESOLVE] = { };
 
-	nvrhi::BindingLayoutDesc tonemapLayout;
-	tonemapLayout.visibility = nvrhi::ShaderType::Pixel;
-	tonemapLayout.bindings =
-	{
-		nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ),
-		nvrhi::BindingLayoutItem::Texture_SRV( 0 ),
-		nvrhi::BindingLayoutItem::TypedBuffer_SRV( 1 ),
-		nvrhi::BindingLayoutItem::Texture_SRV( 2 ),
-		nvrhi::BindingLayoutItem::Sampler( 0 )
-	};
-
-	bindingLayouts[BINDING_LAYOUT_TONEMAP] = { device->createBindingLayout( tonemapLayout ) };
-
-	nvrhi::BindingLayoutDesc histogramLayout;
-	histogramLayout.visibility = nvrhi::ShaderType::Compute;
-	histogramLayout.bindings =
-	{
-		nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ),
-		nvrhi::BindingLayoutItem::Texture_SRV( 0 ),
-		nvrhi::BindingLayoutItem::TypedBuffer_UAV( 0 )
-	};
-
-	bindingLayouts[BINDING_LAYOUT_HISTOGRAM] = { device->createBindingLayout( histogramLayout ) };
-
-	nvrhi::BindingLayoutDesc exposureLayout;
-	exposureLayout.visibility = nvrhi::ShaderType::Compute;
-	exposureLayout.bindings =
-	{
-		nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ),
-		nvrhi::BindingLayoutItem::TypedBuffer_SRV( 0 ),
-		nvrhi::BindingLayoutItem::TypedBuffer_UAV( 0 )
-	};
-
-	bindingLayouts[BINDING_LAYOUT_EXPOSURE] = { device->createBindingLayout( exposureLayout ) };
-
 	// SRS - allocate static/volatile constant buffers after renderparm buffer sizes are defined for each binding layout type
 	//	   - allocate constant buffers only when needed, i.e. when push constants are not enabled for binding layout type
 	for( int i = 0; i < NUM_BINDING_LAYOUTS; i++ )
@@ -934,10 +899,17 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 		// SRS - changed from BUILTIN_MOTION_BLUR to BUILTIN_TAA_MOTION_VECTORS
 		{ BUILTIN_TAA_MOTION_VECTORS, "builtin/post/motionBlur", "_vectors", { { "VECTORS_ONLY", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
-		{ BUILTIN_TAA_RESOLVE, "builtin/post/taa", "", { { "SAMPLE_COUNT", "1" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
-		{ BUILTIN_TAA_RESOLVE_MSAA_2X, "builtin/post/taa", "_msaa2x", { { "SAMPLE_COUNT", "2" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
-		{ BUILTIN_TAA_RESOLVE_MSAA_4X, "builtin/post/taa", "_msaa4x", { { "SAMPLE_COUNT", "4" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
-		{ BUILTIN_TAA_RESOLVE_MSAA_8X, "builtin/post/taa", "_msaa8x", { { "SAMPLE_COUNT", "8" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+
+		// RB: without access to the renderpass code itself we don't know wether we need the push constants or constant buffer versions
+		{ BUILTIN_TAA_RESOLVE, "builtin/post/taa", "", { { "SAMPLE_COUNT", "1" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+		{ BUILTIN_TAA_RESOLVE_MSAA_2X, "builtin/post/taa", "_msaa2x", { { "SAMPLE_COUNT", "2" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+		{ BUILTIN_TAA_RESOLVE_MSAA_4X, "builtin/post/taa", "_msaa4x", { { "SAMPLE_COUNT", "4" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+		{ BUILTIN_TAA_RESOLVE_MSAA_8X, "builtin/post/taa", "_msaa8x", { { "SAMPLE_COUNT", "8" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+
+		{ BUILTIN_TAA_RESOLVE_PC, "builtin/post/taa", "", { { "SAMPLE_COUNT", "1" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+		{ BUILTIN_TAA_RESOLVE_MSAA_2X_PC, "builtin/post/taa", "_msaa2x", { { "SAMPLE_COUNT", "2" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+		{ BUILTIN_TAA_RESOLVE_MSAA_4X_PC, "builtin/post/taa", "_msaa4x", { { "SAMPLE_COUNT", "4" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
+		{ BUILTIN_TAA_RESOLVE_MSAA_8X_PC, "builtin/post/taa", "_msaa8x", { { "SAMPLE_COUNT", "8" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
 
 		{ BUILTIN_AMBIENT_OCCLUSION, "builtin/SSAO/AmbientOcclusion_AO", "", { { "BRIGHTPASS", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_AO ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_AO },
 		{ BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT, "builtin/SSAO/AmbientOcclusion_AO", "_write", { { "BRIGHTPASS", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DRAW_AO ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_AO },
@@ -962,11 +934,19 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		// SP begin
 		{ BUILTIN_BLIT, "builtin/blit", "", { { "TEXTURE_ARRAY", "0" } }, false, SHADER_STAGE_FRAGMENT, LAYOUT_UNKNOWN, BINDING_LAYOUT_BLIT },
 		{ BUILTIN_RECT, "builtin/rect", "", { }, false, SHADER_STAGE_VERTEX, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLIT },
-		{ BUILTIN_TONEMAPPING, "builtin/post/tonemapping", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "QUAD_Z", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
-		{ BUILTIN_TONEMAPPING_TEX_ARRAY, "builtin/post/tonemapping", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "QUAD_Z", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
-		{ BUILTIN_HISTOGRAM_CS, "builtin/post/histogram", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
-		{ BUILTIN_HISTOGRAM_TEX_ARRAY_CS, "builtin/post/histogram", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
-		{ BUILTIN_EXPOSURE_CS, "builtin/post/exposure", "", { { "HISTOGRAM_BINS", "256" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_EXPOSURE },
+
+		{ BUILTIN_TONEMAPPING, "builtin/post/tonemapping", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
+		{ BUILTIN_TONEMAPPING_TEX_ARRAY, "builtin/post/tonemapping", "_tex_array", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
+		{ BUILTIN_HISTOGRAM_CS, "builtin/post/histogram", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
+		{ BUILTIN_HISTOGRAM_TEX_ARRAY_CS, "builtin/post/histogram", "_tex_array", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
+		{ BUILTIN_EXPOSURE_CS, "builtin/post/exposure", "", { { "HISTOGRAM_BINS", "256" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_EXPOSURE },
+
+		// RB: same with push constants
+		{ BUILTIN_TONEMAPPING_PC, "builtin/post/tonemapping", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
+		{ BUILTIN_TONEMAPPING_TEX_ARRAY_PC, "builtin/post/tonemapping", "_tex_array", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
+		{ BUILTIN_HISTOGRAM_CS_PC, "builtin/post/histogram", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
+		{ BUILTIN_HISTOGRAM_TEX_ARRAY_CS_PC, "builtin/post/histogram", "_tex_array", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
+		{ BUILTIN_EXPOSURE_CS_PC, "builtin/post/exposure", "", { { "HISTOGRAM_BINS", "256" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_EXPOSURE },
 		// SP end
 	};
 	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
@@ -988,6 +968,11 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		//{
 		// RB: don't try to load shaders that would break the GLSL compiler in the OpenGL driver
 		//	continue;
+		//}
+
+		//if( i == BUILTIN_TONEMAPPING )
+		//{
+		//	idLib::Printf( "Loading shader program %s\n", prog.name.c_str() );
 		//}
 
 		int vIndex = -1;

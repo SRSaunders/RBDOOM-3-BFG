@@ -67,7 +67,6 @@ struct ToneMappingParameters
 class TonemapPass
 {
 public:
-
 	struct CreateParameters
 	{
 		bool isTextureArray = false;
@@ -83,7 +82,7 @@ public:
 
 	void Render( nvrhi::ICommandList* commandList, const ToneMappingParameters& params, const viewDef_t* viewDef, nvrhi::ITexture* sourceTexture, nvrhi::FramebufferHandle _targetFb );
 
-	void SimpleRender( nvrhi::ICommandList* commandList, const ToneMappingParameters& params, const viewDef_t* viewDef, nvrhi::ITexture* sourceTexture, nvrhi::FramebufferHandle _targetFb );
+	void SimpleRender( nvrhi::ICommandList* commandList, const ToneMappingParameters& params, const viewDef_t* viewDef, nvrhi::ITexture* sourceTexture, nvrhi::FramebufferHandle _fbHandle );
 
 	bool IsLoaded() const
 	{
@@ -91,13 +90,9 @@ public:
 	}
 
 private:
-
 	void ResetExposure( nvrhi::ICommandList* commandList, float initialExposure );
-
 	void ResetHistogram( nvrhi::ICommandList* commandList );
-
 	void AddFrameToHistogram( nvrhi::ICommandList* commandList, const viewDef_t* viewDef, nvrhi::ITexture* sourceTexture );
-
 	void ComputeExposure( nvrhi::ICommandList* commandList, const ToneMappingParameters& params );
 
 	bool                            isLoaded;
@@ -111,16 +106,18 @@ private:
 	nvrhi::BufferHandle             toneMappingCb;
 	nvrhi::BufferHandle             histogramBuffer;
 	nvrhi::BufferHandle             exposureBuffer;
-	nvrhi::BindingLayoutHandle      renderBindingLayoutHandle;
-	nvrhi::BindingLayoutHandle      histogramBindingLayoutHandle;
+	nvrhi::BindingLayoutHandle      renderBindingLayout;
+	nvrhi::BindingLayoutHandle      histogramBindingLayout;
 	nvrhi::ComputePipelineHandle    histogramPipeline;
 	nvrhi::ComputePipelineHandle    exposurePipeline;
 	nvrhi::GraphicsPipelineHandle   renderPipeline;
 	nvrhi::BindingSetHandle         exposureBindingSet;
+	nvrhi::BindingLayoutHandle	    exposureBindingLayout;
 	idList<nvrhi::BindingSetHandle> histogramBindingSets;
-	idHashIndex						histogramBindingHash;
+	idHashIndex                     histogramBindingHash;
 	idList<nvrhi::BindingSetHandle> renderBindingSets;
-	idHashIndex						renderBindingHash;
+	idHashIndex                     renderBindingHash;
+	bool                            pcEnabled = false; // true if push constants are used
 };
 
 #endif
