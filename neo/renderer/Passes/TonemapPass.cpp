@@ -51,9 +51,9 @@ void TonemapPass::Init( nvrhi::DeviceHandle _device, CommonRenderPasses* _common
 	size_t pcSize = sizeof( ToneMappingConstants );
 	pcEnabled = pcSize <= deviceManager->GetMaxPushConstantSize();
 
-	auto histogramShaderInfo = ( _params.isTextureArray ) ? renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_HISTOGRAM_TEX_ARRAY_CS_PC : BUILTIN_HISTOGRAM_TEX_ARRAY_CS ) : renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_HISTOGRAM_CS_PC : BUILTIN_HISTOGRAM_CS );
-	auto exposureShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_EXPOSURE_CS_PC : BUILTIN_EXPOSURE_CS );
-	auto tonemapShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_TONEMAPPING_PC : BUILTIN_TONEMAPPING );
+	auto histogramShaderInfo = ( _params.isTextureArray ) ? renderProgManager.GetProgramInfo( BUILTIN_HISTOGRAM_TEX_ARRAY_CS ) : renderProgManager.GetProgramInfo( BUILTIN_HISTOGRAM_CS );
+	auto exposureShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_EXPOSURE_CS );
+	auto tonemapShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TONEMAPPING );
 
 	histogramShader = histogramShaderInfo.cs;
 	exposureShader = exposureShaderInfo.cs;

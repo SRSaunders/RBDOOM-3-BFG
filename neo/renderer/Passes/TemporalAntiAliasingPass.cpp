@@ -92,34 +92,19 @@ void TemporalAntiAliasingPass::Init(
 	size_t pcSize = sizeof( TemporalAntiAliasingConstants );
 	pcEnabled = pcSize <= deviceManager->GetMaxPushConstantSize();
 
-	// shader selection
-	/*
-	should probably be done here and then passed to renderProgManager.GetProgramInfo
-	idList<shaderMacro_t> macros;
-	macros.Append( shaderMacro_t( "USE_PUSH_CONSTANTS", pcEnabled ? "1" : "0" ) );
-	if( params.useCatmullRomFilter )
-	{
-		macros.Append( shaderMacro_t( "USE_CATMULL_ROM_FILTER", "1" ) );
-	}
-	if( useStencil )
-	{
-		macros.Append( shaderMacro_t( "USE_STENCIL", "1" ) );
-	}
-	*/
-
 	//switch( r_antiAliasing.GetInteger() )
 	{
 #if ID_MSAA
 	case ANTI_ALIASING_MSAA_2X:
 		{
-			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_TAA_RESOLVE_MSAA_2X_PC : BUILTIN_TAA_RESOLVE_MSAA_2X );
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_2X );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			break;
 		}
 
 	case ANTI_ALIASING_MSAA_4X:
 		{
-			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_TAA_RESOLVE_MSAA_4X_PC : BUILTIN_TAA_RESOLVE_MSAA_4X );
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_4X );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			break;
 		}
@@ -130,7 +115,7 @@ void TemporalAntiAliasingPass::Init(
 
 		//default:
 		{
-			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( pcEnabled ? BUILTIN_TAA_RESOLVE_PC : BUILTIN_TAA_RESOLVE );
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			//break;
 		}
