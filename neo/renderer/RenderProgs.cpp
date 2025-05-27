@@ -942,11 +942,11 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_EXPOSURE_CS, "builtin/post/exposure", "", { { "HISTOGRAM_BINS", "256" }, { "USE_PUSH_CONSTANTS", "0" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_EXPOSURE },
 
 		// RB: same with push constants
-		{ BUILTIN_TONEMAPPING_PC, "builtin/post/tonemapping", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
-		{ BUILTIN_TONEMAPPING_TEX_ARRAY_PC, "builtin/post/tonemapping", "_tex_array", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
-		{ BUILTIN_HISTOGRAM_CS_PC, "builtin/post/histogram", "", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
-		{ BUILTIN_HISTOGRAM_TEX_ARRAY_CS_PC, "builtin/post/histogram", "_tex_array", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
-		{ BUILTIN_EXPOSURE_CS_PC, "builtin/post/exposure", "", { { "HISTOGRAM_BINS", "256" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_EXPOSURE },
+		{ BUILTIN_TONEMAPPING_PC, "builtin/post/tonemapping", "_pc", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
+		{ BUILTIN_TONEMAPPING_TEX_ARRAY_PC, "builtin/post/tonemapping", "_tex_array_pc", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "QUAD_Z", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TONEMAP },
+		{ BUILTIN_HISTOGRAM_CS_PC, "builtin/post/histogram", "_pc", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "0" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
+		{ BUILTIN_HISTOGRAM_TEX_ARRAY_CS_PC, "builtin/post/histogram", "_tex_array_pc", { { "HISTOGRAM_BINS", "256" }, { "SOURCE_ARRAY", "1" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_HISTOGRAM },
+		{ BUILTIN_EXPOSURE_CS_PC, "builtin/post/exposure", "_pc", { { "HISTOGRAM_BINS", "256" }, { "USE_PUSH_CONSTANTS", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_EXPOSURE },
 		// SP end
 	};
 	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );

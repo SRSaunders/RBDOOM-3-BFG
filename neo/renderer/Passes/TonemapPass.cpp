@@ -281,8 +281,8 @@ void TonemapPass::Render(
 			};
 		}
 		renderBindingSet = device->createBindingSet( bindingSetDesc, renderBindingLayout );
-		//renderBindingSets.Append( renderBindingSet );
-		//renderBindingHash.Add( renderHash, renderBindingSets.Num() - 1 );
+		renderBindingSets.Append( renderBindingSet );
+		renderBindingHash.Add( renderHash, renderBindingSets.Num() - 1 );
 	}
 
 	{
