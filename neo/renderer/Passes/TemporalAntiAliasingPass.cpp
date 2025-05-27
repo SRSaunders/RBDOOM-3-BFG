@@ -25,6 +25,7 @@
 #pragma hdrstop
 
 #include "TemporalAntiAliasingPass.h"
+#include "TemporalAntiAliasingPass_cb.h"
 #include "CommonPasses.h"
 
 #include "renderer/RenderCommon.h"

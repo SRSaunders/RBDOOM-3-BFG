@@ -26,6 +26,8 @@
 
 #include "renderer/RenderCommon.h"
 #include "TonemapPass.h"
+#include "TonemapPass_cb.h"
+
 #include <sys/DeviceManager.h>
 extern DeviceManager* deviceManager;
 

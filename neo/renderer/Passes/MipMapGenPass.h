@@ -32,7 +32,6 @@ class CommonRenderPasses;
 
 class MipMapGenPass
 {
-
 public:
 
 	enum Mode : uint8_t

@@ -44,30 +44,6 @@ struct TemporalAntiAliasingParameters
 	bool enableHistoryClamping = true;
 };
 
-struct TemporalAntiAliasingConstants
-{
-	idRenderMatrix reprojectionMatrix;
-
-	idVec2 inputViewOrigin;
-	idVec2 inputViewSize;
-
-	idVec2 outputViewOrigin;
-	idVec2 outputViewSize;
-
-	idVec2 inputPixelOffset;
-	idVec2 outputTextureSizeInv;
-
-	idVec2 inputOverOutputViewSize;
-	idVec2 outputOverInputViewSize;
-
-	float clampingFactor;
-	float newFrameWeight;
-	float pqC;
-	float invPqC;
-
-	uint stencilMask;
-};
-
 class TemporalAntiAliasingPass
 {
 private:
