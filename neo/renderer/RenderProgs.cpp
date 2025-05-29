@@ -400,16 +400,27 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	layoutTypeAttributes[BINDING_LAYOUT_HISTOGRAM].pcEnabled = sizeof( ToneMappingConstants ) <= deviceManager->GetMaxPushConstantSize();
 	layoutTypeAttributes[BINDING_LAYOUT_EXPOSURE].pcEnabled = sizeof( ToneMappingConstants ) <= deviceManager->GetMaxPushConstantSize();
 
-	// SRS - Perform runtime check for Vulkan running on x86-based vs. Apple Silicon hosts since this has to work for Universal Binaries on macOS
-	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN && glConfig.vendor != VENDOR_APPLE )
+	// SRS - Apply push constant workarounds for Vulkan running on AMD vs. other GPUs (and also needs to work for Universal Binaries on macOS)
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN && glConfig.vendor == VENDOR_AMD )
 	{
-		// SRS - FIXME: Disable Vulkan push constants for select layout types to reduce GPU Timeout Errors (seen on x86_64/Linux and x86_64/macOS)
-		//     - Possibly due to exceeding pc buffer limits (nvrhi or driver) or imperfect logic for push constant uniforms change detection - TBD
-		//     - Note these correspond to rpNominalSet3LayoutTypes and rpNominalSet4LayoutTypes for rpNominalSet3 and rpNominalSet4 renderparm sets
+		// SRS - FIXME: Workaround 1 - Disable push constants for select shaders to reduce GPU Timeout Errors (seen on Linux+AMD and macOS+AMD)
+		//     - Possibly due to exceeding push constant resource limits or perhaps a driver sync problem with AMD GPUs
+		//     - Note this may not be required on Windows Vulkan and AMD, but being conservative with no negative impact
 		layoutTypeAttributes[BINDING_LAYOUT_GBUFFER].pcEnabled = false;
 		layoutTypeAttributes[BINDING_LAYOUT_GBUFFER_SKINNED].pcEnabled = false;
 		layoutTypeAttributes[BINDING_LAYOUT_TEXTURE].pcEnabled = false;
 		layoutTypeAttributes[BINDING_LAYOUT_TEXTURE_SKINNED].pcEnabled = false;
+
+#if defined(__APPLE__)
+		// SRS - FIXME: Workaround 2 - Disable push constants for additional shaders on macOS/AMD to reduce GPU Timeout and Rendering Errors
+		//     - Possibly due to exceeding push constant resource limits or perhaps a driver sync problem with AMD GPUs and MoltenVK
+		//     - Note these render passes use compute shaders containing GroupMemoryBarrierWithGroupSync() - SSAO2 does not use PCs
+		layoutTypeAttributes[BINDING_LAYOUT_MIPMAPGEN].pcEnabled = false;
+		layoutTypeAttributes[BINDING_LAYOUT_TAA_RESOLVE].pcEnabled = false;
+		layoutTypeAttributes[BINDING_LAYOUT_TONEMAP].pcEnabled = false;
+		layoutTypeAttributes[BINDING_LAYOUT_HISTOGRAM].pcEnabled = false;
+		layoutTypeAttributes[BINDING_LAYOUT_EXPOSURE].pcEnabled = false;
+#endif
 	}
 
 	auto defaultLayoutDesc = nvrhi::BindingLayoutDesc()
