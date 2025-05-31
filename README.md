@@ -479,11 +479,7 @@ Recommended in this case is `cmake-vs2022-win64-no-ffmpeg.bat`
 
 6. Copy the base folder of your `Steam/steamapps/common/DOOM 3 BFG Edition/base/` over to `DoomCode/base/` See also [Installation](#installation)
 
-7. [`OPTIONAL`] Download https://www.moddb.com/mods/rbdoom-3-bfg/downloads/rbdoom-3-bfg-130 and unpack it over your `DoomCode/` folder and then run in `DoomCode/`
-
-		> git checkout . 
-		
-	With this the local git files are newer for the files that have the same names.
+7. Download the 7z from https://github.com/RobertBeckebans/RBDOOM-3-BFG/releases/tag/v1.6.0 and unpack the base/*.pk4 files into your `DoomCode/base/` folder
 
 8. Copy `DoomCode/build/RBDoom3BFG` to `DoomCode/`
 
