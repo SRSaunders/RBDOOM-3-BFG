@@ -529,9 +529,9 @@ Recommended in this case is `cmake-vs2022-win64-no-ffmpeg.bat`
 	For command line builds:
 
 		> cd ../build
-		> make
+		> make -j<number of your cores>
 	
-	For Xcode builds double click on `DoomCode/xcode-\<buildtype\>/RBDoom3BFG.xcodeproj` and start the build. The generated Xcode project file is pre-configured with the correct targets and build settings.
+	For Xcode builds double click on `DoomCode/xcode-<buildtype>/RBDoom3BFG.xcodeproj` and start the build. The generated Xcode project file is pre-configured with the correct targets and build settings.
 
 ---
 # Installation <a name="installation"></a>
@@ -553,7 +553,7 @@ This should also work fine with your GOG installation.
 ---
 ## The following instructions are primarily intended for `Linux` and `macOS` users and all hackers on other operating systems.
 
-Linux users are advised to compile the engine from the Github source code and to put the `base/` data from the retail game into the `DoomCode/base/` directory. macOS users are also advised to compile the engine from the Github source code but to put the `base/` data from the retail game into their `~/Library/Application Support/RBDOOM-3-BFG/base/` directory. For both Linux and macOS you must also copy the contents of the `base/` folder from the unzipped RBDOOM-3-BFG ModDB download into your `DoomCode/base/` directory, replacing files as requested.
+Linux users are advised to compile the engine from the Github source code and to put the `base/` data from the retail game into the `DoomCode/base/` directory. macOS users are also advised to compile the engine from the Github source code but to put the `base/` data from the retail game into their `~/Library/Application Support/RBDOOM-3-BFG/base/` directory. For both Linux and macOS you must also copy the `base/*.pk4` files from the unzipped RBDOOM-3-BFG ModDB download (or the [RBDOOM-3-BFG 1.6.0 Release](https://github.com/RobertBeckebans/RBDOOM-3-BFG/releases/download/v1.6.0/RBDOOM-3-BFG-1.6.0.22-full-win64-20250510-git-ba39ba6.7z)) into your `DoomCode/base/` directory.
 
 On Linux and macOS the easiest way to install is with SteamCMD: https://developer.valvesoftware.com/wiki/SteamCMD.
 See the description on https://developer.valvesoftware.com/wiki/SteamCMD#Linux (macOS is directly below that) on how to install SteamCMD on your system. You won't have to create a new user.
