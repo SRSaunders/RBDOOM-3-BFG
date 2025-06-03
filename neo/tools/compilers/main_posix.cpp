@@ -682,9 +682,9 @@ numCPUPackages          - the total number of packages (physical processors)
 */
 void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCPUPackages )
 {
-        numPhysicalCPUCores = 1;
-        numLogicalCPUCores = 1;
-        numCPUPackages = 1;
+	numPhysicalCPUCores = 1;
+	numLogicalCPUCores = 1;
+	numCPUPackages = 1;
 }
 
 class idSysCmdline : public idSys
