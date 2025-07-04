@@ -1039,8 +1039,6 @@ public:
 	idList<calcEnvprobeParms_t*>		envprobeJobs;
 	idList<calcLightGridPointParms_t*>	lightGridJobs;
 
-	idRenderBackend			backend;
-
 #if defined(USE_INTRINSICS_SSE)
 
 #if MOC_MULTITHREADED
@@ -1058,6 +1056,7 @@ private:
 };
 
 extern idRenderSystemLocal	tr;
+extern idRenderBackend		backEnd;
 extern glconfig_t			glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 
 //
