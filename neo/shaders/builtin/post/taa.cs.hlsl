@@ -75,9 +75,9 @@ Texture2D<float4> t_FeedbackInput :
 register( t2 );
 SamplerState s_Sampler :
 register( s0 );
-VK_IMAGE_FORMAT("rgba16f") RWTexture2D<float4> u_ColorOutput :
+VK_IMAGE_FORMAT( "rgba16f" ) RWTexture2D<float4> u_ColorOutput :
 register( u0 );
-VK_IMAGE_FORMAT("rgba16f") RWTexture2D<float4> u_FeedbackOutput :
+VK_IMAGE_FORMAT( "rgba16f" ) RWTexture2D<float4> u_FeedbackOutput :
 register( u1 );
 
 #define GROUP_X 16
