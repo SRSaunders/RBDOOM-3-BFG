@@ -1094,7 +1094,7 @@ void idRenderSystemLocal::TakeScreenshot( int widthIgnored, int heightIgnored, c
 	// discard anything currently on the list (this triggers SwapBuffers)
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-	R_ReadPixelsRGB8( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->ldrImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, fileName );
+	R_ReadPixelsRGB8( deviceManager->GetDevice(), &backEnd.GetCommonPasses(), globalImages->ldrImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, fileName );
 
 	// discard anything currently on the list
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
@@ -2390,7 +2390,7 @@ idRenderSystemLocal::BeginLevelLoad
 void idRenderSystemLocal::BeginLevelLoad()
 {
 	// clear binding sets for previous level images and light data #676
-	backend.ClearCaches();
+	backEnd.ClearCaches();
 
 	globalImages->BeginLevelLoad();
 	renderModelManager->BeginLevelLoad();
@@ -2505,7 +2505,7 @@ void idRenderSystemLocal::InitBackend()
 	// if OpenGL isn't started, start it now
 	if( !IsInitialized() )
 	{
-		backend.Init();
+		backEnd.Init();
 
 		if( !commandList )
 		{
@@ -2532,7 +2532,7 @@ void idRenderSystemLocal::ShutdownOpenGL()
 	// free the context and close the window
 	R_ShutdownFrameData();
 
-	backend.Shutdown();
+	backEnd.Shutdown();
 }
 
 /*
