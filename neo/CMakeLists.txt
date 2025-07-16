@@ -372,7 +372,8 @@ if(USE_VULKAN)
 
 		# SRS - ShaderMake uses DXC_CUSTOM_PATH as fallback if dxc for SPIRV not found by other means
 		if(Vulkan_dxc_exe_FOUND AND NOT DEFINED DXC_CUSTOM_PATH)
-			set(DXC_CUSTOM_PATH ${Vulkan_dxc_EXECUTABLE})
+			get_filename_component(Vulkan_dxc_EXECUTABLE_PATH ${Vulkan_dxc_EXECUTABLE} DIRECTORY)
+			set(DXC_CUSTOM_PATH ${Vulkan_dxc_EXECUTABLE_PATH})
 		endif()
 
         if(APPLE)
