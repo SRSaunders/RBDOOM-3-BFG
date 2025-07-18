@@ -371,7 +371,7 @@ if(USE_VULKAN)
 		include_directories(${Vulkan_INCLUDE_DIRS})
 
 		# SRS - ShaderMake uses DXC_CUSTOM_PATH as fallback if dxc for SPIRV not found by other means
-		if(Vulkan_dxc_exe_FOUND AND NOT DEFINED DXC_CUSTOM_PATH)
+		if(Vulkan_dxc_exe_FOUND AND NOT DXC_CUSTOM_PATH)
 			get_filename_component(DXC_CUSTOM_PATH ${Vulkan_dxc_EXECUTABLE} DIRECTORY)
 		endif()
 
