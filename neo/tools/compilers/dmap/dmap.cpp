@@ -48,7 +48,7 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	faces = MakeStructuralBspFaceList( e->primitives );
 
 	// RB: dump input faces for debugging
-	if( dmapGlobals.glview )
+	if( dmapGlobals.exportDebugVisuals )
 	{
 		WriteGLView( faces, "facelist" );
 	}
@@ -188,13 +188,15 @@ DmapHelp
 void DmapHelp()
 {
 	common->Printf(
-
 		"Usage: dmap [options] mapfile\n"
 		"Options:\n"
-		"noCurves          = don't process curves\n"
-		"noCM              = don't create collision map\n"
-		"noAAS             = don't create AAS files\n"
-
+		"noCurves               = don't process curves\n"
+		"noCM                   = don't create collision map\n"
+		"noAAS                  = don't create AAS files\n"
+		"noFlood                = skip area flooding = bad performance\n"
+		"blockSize <x> <y> <z>  = cut BSP along these dimensions or disable with 0 0 0\n"
+		"obj                    = export BSP render surfaces as .obj file\n"
+		""
 	);
 }
 
@@ -212,7 +214,8 @@ void ResetDmapGlobals()
 	dmapGlobals.uEntities = NULL;
 	dmapGlobals.entityNum = 0;
 	dmapGlobals.mapLights.Clear();
-	dmapGlobals.glview = false;
+	dmapGlobals.exportDebugVisuals = false;
+	dmapGlobals.exportObj = false;
 	dmapGlobals.asciiTree = false;
 	dmapGlobals.noOptimize = false;
 	dmapGlobals.verboseentities = false;
@@ -274,9 +277,13 @@ void Dmap( const idCmdArgs& args )
 			}
 		}
 
-		if( !idStr::Icmp( s, "glview" ) )
+		if( !idStr::Icmp( s, "glview" ) || !idStr::Icmp( s, "debug" ) )
 		{
-			dmapGlobals.glview = true;
+			dmapGlobals.exportDebugVisuals = true;
+		}
+		else if( !idStr::Icmp( s, "obj" ) )
+		{
+			dmapGlobals.exportObj = true;
 		}
 		else if( !idStr::Icmp( s, "asciiTree" ) )
 		{
@@ -447,7 +454,7 @@ void Dmap( const idCmdArgs& args )
 		WriteOutputFile();
 
 		// RB: dump BSP after nodes being pruned and optimized
-		if( dmapGlobals.glview )
+		if( dmapGlobals.exportDebugVisuals )
 		{
 			uEntity_t* world = &dmapGlobals.uEntities[0];
 

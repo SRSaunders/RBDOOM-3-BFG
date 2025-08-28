@@ -992,7 +992,7 @@ void WriteOutputFile()
 
 	// RB: write area models as OBJ file
 	idFile* objFile = NULL;
-	if( dmapGlobals.glview )
+	if( dmapGlobals.exportObj )
 	{
 		idStrStatic< MAX_OSPATH > qpath;
 		qpath.Format( "%s.obj", dmapGlobals.mapFileBase );

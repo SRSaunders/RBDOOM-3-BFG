@@ -278,7 +278,8 @@ typedef struct
 
 	idList<mapLight_t*>	mapLights;
 
-	bool	glview;
+	bool	exportDebugVisuals;
+	bool	exportObj;			// write Wavefront OBJ of .proc file for Blender
 	bool	asciiTree;			// BSP tree visualization in the .proc file
 	bool	noOptimize;
 	bool	verboseentities;
