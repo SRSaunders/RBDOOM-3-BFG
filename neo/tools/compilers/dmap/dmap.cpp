@@ -196,6 +196,7 @@ void DmapHelp()
 		"noFlood                = skip area flooding = bad performance\n"
 		"blockSize <x> <y> <z>  = cut BSP along these dimensions or disable with 0 0 0\n"
 		"obj                    = export BSP render surfaces as .obj file\n"
+		"debug                  = export BSP portals and other details as .obj files\n"
 		""
 	);
 }
