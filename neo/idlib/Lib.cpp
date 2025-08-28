@@ -111,24 +111,34 @@ void idLib::ShutDown()
 ===============================================================================
 */
 
-idVec4	colorBlack	= idVec4( 0.00f, 0.00f, 0.00f, 1.00f );
-idVec4	colorWhite	= idVec4( 1.00f, 1.00f, 1.00f, 1.00f );
-idVec4	colorRed	= idVec4( 1.00f, 0.00f, 0.00f, 1.00f );
-idVec4	colorGreen	= idVec4( 0.00f, 1.00f, 0.00f, 1.00f );
-idVec4	colorBlue	= idVec4( 0.00f, 0.00f, 1.00f, 1.00f );
-idVec4	colorYellow	= idVec4( 1.00f, 1.00f, 0.00f, 1.00f );
-idVec4	colorMagenta = idVec4( 1.00f, 0.00f, 1.00f, 1.00f );
-idVec4	colorCyan	= idVec4( 0.00f, 1.00f, 1.00f, 1.00f );
-idVec4	colorOrange	= idVec4( 1.00f, 0.50f, 0.00f, 1.00f );
-idVec4	colorPurple	= idVec4( 0.60f, 0.00f, 0.60f, 1.00f );
-idVec4	colorPink	= idVec4( 0.73f, 0.40f, 0.48f, 1.00f );
-idVec4	colorBrown	= idVec4( 0.40f, 0.35f, 0.08f, 1.00f );
-idVec4	colorLtGrey	= idVec4( 0.75f, 0.75f, 0.75f, 1.00f );
-idVec4	colorMdGrey	= idVec4( 0.50f, 0.50f, 0.50f, 1.00f );
-idVec4	colorDkGrey	= idVec4( 0.25f, 0.25f, 0.25f, 1.00f );
-// jmarshall
-idVec4  colorGold	= idVec4( 0.68f, 0.63f, 0.36f, 1.00f );
-// jmarshall end
+// basic colors
+const idVec4 colorBlack   = idVec4( 0.00f, 0.00f, 0.00f, 1.00f ); // #000000
+const idVec4 colorWhite   = idVec4( 1.00f, 1.00f, 1.00f, 1.00f ); // #FFFFFF
+const idVec4 colorRed     = idVec4( 1.00f, 0.00f, 0.00f, 1.00f ); // #FF0000
+const idVec4 colorGreen   = idVec4( 0.00f, 1.00f, 0.00f, 1.00f ); // #00FF00
+const idVec4 colorBlue    = idVec4( 0.00f, 0.00f, 1.00f, 1.00f ); // #0000FF
+const idVec4 colorYellow  = idVec4( 1.00f, 1.00f, 0.00f, 1.00f ); // #FFFF00
+const idVec4 colorMagenta = idVec4( 1.00f, 0.00f, 1.00f, 1.00f ); // #FF00FF
+const idVec4 colorCyan    = idVec4( 0.00f, 1.00f, 1.00f, 1.00f ); // #00FFFF
+const idVec4 colorOrange  = idVec4( 1.00f, 0.50f, 0.00f, 1.00f ); // #FF8000
+const idVec4 colorPurple  = idVec4( 0.60f, 0.00f, 0.60f, 1.00f ); // #990099
+const idVec4 colorPink    = idVec4( 0.73f, 0.40f, 0.48f, 1.00f ); // #BA667A
+const idVec4 colorBrown   = idVec4( 0.40f, 0.35f, 0.08f, 1.00f ); // #665916
+const idVec4 colorLtGrey  = idVec4( 0.75f, 0.75f, 0.75f, 1.00f ); // #BFBFBF
+const idVec4 colorMdGrey  = idVec4( 0.50f, 0.50f, 0.50f, 1.00f ); // #808080
+const idVec4 colorDkGrey  = idVec4( 0.25f, 0.25f, 0.25f, 1.00f ); // #404040
+const idVec4 colorGold    = idVec4( 0.68f, 0.63f, 0.36f, 1.00f ); // #ADA15C
+
+// W3C/X11 standard colors
+const idVec4 colorSilver  = idVec4( 0.75f, 0.75f, 0.75f, 1.00f ); // #C0C0C0
+const idVec4 colorGray    = idVec4( 0.50f, 0.50f, 0.50f, 1.00f ); // #808080
+const idVec4 colorMaroon  = idVec4( 0.50f, 0.00f, 0.00f, 1.00f ); // #800000
+const idVec4 colorFuchsia = idVec4( 1.00f, 0.00f, 1.00f, 1.00f ); // #FF00FF
+const idVec4 colorLime    = idVec4( 0.00f, 1.00f, 0.00f, 1.00f ); // #00FF00
+const idVec4 colorOlive   = idVec4( 0.50f, 0.50f, 0.00f, 1.00f ); // #808000
+const idVec4 colorNavy    = idVec4( 0.00f, 0.00f, 0.50f, 1.00f ); // #000080
+const idVec4 colorTeal    = idVec4( 0.00f, 0.50f, 0.50f, 1.00f ); // #008080
+const idVec4 colorAqua    = idVec4( 0.00f, 1.00f, 1.00f, 1.00f ); // #00FFFF
 
 /*
 ================

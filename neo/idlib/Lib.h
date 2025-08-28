@@ -113,24 +113,33 @@ class idVec4;
 #define SIZE_GB( x )						( ( ( SIZE_MB( x ) ) + 1023 ) / 1024 )
 
 // basic colors
-extern	idVec4 colorBlack;
-extern	idVec4 colorWhite;
-extern	idVec4 colorRed;
-extern	idVec4 colorGreen;
-extern	idVec4 colorBlue;
-extern	idVec4 colorYellow;
-extern	idVec4 colorMagenta;
-extern	idVec4 colorCyan;
-extern	idVec4 colorOrange;
-extern	idVec4 colorPurple;
-extern	idVec4 colorPink;
-extern	idVec4 colorBrown;
-extern	idVec4 colorLtGrey;
-extern	idVec4 colorMdGrey;
-extern	idVec4 colorDkGrey;
-// jmarshall
-extern idVec4  colorGold;
-// jmarshall end
+extern const idVec4 colorBlack;
+extern const idVec4 colorWhite;
+extern const idVec4 colorRed;
+extern const idVec4 colorGreen;
+extern const idVec4 colorBlue;
+extern const idVec4 colorYellow;
+extern const idVec4 colorMagenta;
+extern const idVec4 colorCyan;
+extern const idVec4 colorOrange;
+extern const idVec4 colorPurple;
+extern const idVec4 colorPink;
+extern const idVec4 colorBrown;
+extern const idVec4 colorLtGrey;
+extern const idVec4 colorMdGrey;
+extern const idVec4 colorDkGrey;
+extern const idVec4 colorGold;
+
+// W3C/X11 standard colors
+extern const idVec4 colorSilver;
+extern const idVec4 colorGray;
+extern const idVec4 colorMaroon;
+extern const idVec4 colorFuchsia;
+extern const idVec4 colorLime;
+extern const idVec4 colorOlive;
+extern const idVec4 colorNavy;
+extern const idVec4 colorTeal;
+extern const idVec4 colorAqua;
 
 // packs color floats in the range [0,1] into an integer
 dword	PackColor( const idVec3& color );

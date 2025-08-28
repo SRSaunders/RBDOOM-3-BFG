@@ -271,6 +271,7 @@ int SelectSplitPlaneNum( node_t* node, bspFace_t* list )
 		}
 	}
 
+#if 0
 	// Helper lambda: score a plane (used for candidate evaluation)
 	auto scorePlane = [&]( bspFace_t* candidate, bool preferWallsOnly ) -> int
 	{
@@ -382,7 +383,6 @@ int SelectSplitPlaneNum( node_t* node, bspFace_t* list )
 		return score;
 	};
 
-#if 0
 	if( dmapGlobals.bspAlternateSplitWeights )
 	{
 		// Two-phase: 1) strict: prefer walls only (if enabled)
@@ -510,7 +510,7 @@ int SelectSplitPlaneNum( node_t* node, bspFace_t* list )
 
 		int score;
 
-#if 1
+#if 0
 		if( dmapGlobals.bspAlternateSplitWeights )
 		{
 			// original idea by 27 of the Urban Terror team
@@ -725,15 +725,14 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 	mapTri_t*	tri;
 
 	flist = NULL;
-	for( ; list ; list = list->next )
+	for( ; list; list = list->next )
 	{
-		// RB: support polygons instead of brushes
+		// RB: support structural polygons instead of brushes
 		tri = list->polyTris;
 		if( tri )
 		{
-			for( ; tri ; tri = tri->next )
+			for( ; tri; tri = tri->next )
 			{
-				// HACK
 				MapPolygonMesh* mapMesh = ( MapPolygonMesh* ) tri->originalMapMesh;
 
 				// don't create BSP faces for the nodraw helpers touching the area portals
@@ -742,8 +741,8 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 					continue;
 				}
 
-				// FIXME: triangles as portals, should be merged back to quad
 				f = AllocBspFace();
+
 				if( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL )
 				{
 					f->portal = true;
@@ -756,11 +755,9 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 				//( *w )[2] = idVec5( tri->v[2].xyz, tri->v[2].GetTexCoord() );
 
 				w = WindingForTri( tri );
-				//w->ReverseSelf();
 				f->w = w;
 
 				f->planenum = tri->planeNum & ~1;
-				//f->planenum = ( tri->planeNum ^ 1 ) & ~1;
 				f->next = flist;
 				flist = f;
 			}
@@ -784,19 +781,24 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 		{
 			s = &b->sides[i];
 			w = s->winding;
+
 			if( !w )
 			{
 				continue;
 			}
+
 			if( ( b->contents & CONTENTS_AREAPORTAL ) && !( s->material->GetContentFlags() & CONTENTS_AREAPORTAL ) )
 			{
 				continue;
 			}
+
 			f = AllocBspFace();
+
 			if( s->material->GetContentFlags() & CONTENTS_AREAPORTAL )
 			{
 				f->portal = true;
 			}
+
 			f->w = w->Copy();
 			f->planenum = s->planenum & ~1;
 			f->next = flist;

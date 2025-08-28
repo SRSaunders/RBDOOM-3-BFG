@@ -3,7 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2015 Robert Beckebans
+Copyright (C) 2015-2025 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -48,7 +48,6 @@ struct OBJFace
 struct OBJGroup
 {
 	idStr						name;
-	//idList<OBJObject>			objects;
 	idList<OBJFace>				faces;
 };
 
@@ -82,33 +81,78 @@ int PortalVisibleSides( uPortal_t* p )
 	return 0;
 }
 
-void OutputWinding( idWinding* w, OBJGroup& group )
+idVec4 PickDebugColor( int area )
 {
-	// give every surface a different color
-	static idVec4 colors[] = { colorRed, colorGreen, colorBlue, colorYellow, colorMagenta, colorCyan, colorWhite, colorPurple, colorGold };
-	static int colorIndex = 0;
-	colorIndex++;
-	dword color = PackColor( colors[colorIndex % 9] );
+	static const idVec4 colors[] =
+	{
+		// Primary / Complementary
+		colorRed,    colorCyan,
+		colorGreen,  colorMagenta,
+		colorBlue,   colorYellow,
 
-	//static	int	level = 128;
-	//float		light;
-	//level += 28;
-	//light = ( level & 255 ) / 255.0;
+		// Strong contrast pairs
+		colorLime,   colorNavy,
+		colorFuchsia, colorBlack,
+
+		// Accent color pairs
+		colorOrange, colorTeal,
+		colorPurple, colorOlive,
+		colorPink,   colorAqua,
+		colorBrown,  colorGold
+	};
+	static const int numColors = sizeof( colors ) / sizeof( colors[0] );
+
+	idVec4 color = ( area > -1 ) ? ( colors[area % numColors] ) : colorTeal;
+
+	// tint selected color a bit for each surface
+	static	int	level = 128;
+	float		light;
+	level += 5;
+	light = ( level & 55 ) / 255.0;
+
+	color.x = idMath::ClampFloat( 0.0f, 1.0f, color.x + light );
+	color.y = idMath::ClampFloat( 0.0f, 1.0f, color.y + light );
+	color.z = idMath::ClampFloat( 0.0f, 1.0f, color.z + light );
+
+	return color;
+}
+
+void OutputWinding( idWinding* w, OBJGroup& group, int area, bool reverse )
+{
+	idVec4 color = PickDebugColor( area );
+	dword dcolor = PackColor( color );
 
 	OBJFace& face = group.faces.Alloc();
 
-	//for( i = 0; i < w->GetNumPoints(); i++ )
-	for( int i = w->GetNumPoints() - 1; i >= 0; i-- )
+	if( reverse )
 	{
-		idDrawVert& dv = face.verts.Alloc();
+		for( int i = 0; i < w->GetNumPoints(); i++ )
+		{
+			idDrawVert& dv = face.verts.Alloc();
 
-		dv.xyz.x = ( *w )[i][0];
-		dv.xyz.y = ( *w )[i][1];
-		dv.xyz.z = ( *w )[i][2];
+			dv.xyz.x = ( *w )[i][0];
+			dv.xyz.y = ( *w )[i][1];
+			dv.xyz.z = ( *w )[i][2];
 
-		dv.SetColor( color );
+			dv.SetColor( dcolor );
 
-		//dv.SetNormal( w->GetPlane() )
+			//dv.SetNormal( w->GetPlane() )
+		}
+	}
+	else
+	{
+		for( int i = w->GetNumPoints() - 1; i >= 0; i-- )
+		{
+			idDrawVert& dv = face.verts.Alloc();
+
+			dv.xyz.x = ( *w )[i][0];
+			dv.xyz.y = ( *w )[i][1];
+			dv.xyz.z = ( *w )[i][2];
+
+			dv.SetColor( dcolor );
+
+			//dv.SetNormal( w->GetPlane() )
+		}
 	}
 }
 
@@ -139,7 +183,7 @@ void OutputPortal( uPortal_t* p, OBJGroup& group, bool touchingVoid )
 		if( outside && !passable && goingVoid )
 		{
 			w = p->winding;
-			OutputWinding( w, group );
+			OutputWinding( w, group, n0->area, false );
 		}
 
 		return;
@@ -157,7 +201,7 @@ void OutputPortal( uPortal_t* p, OBJGroup& group, bool touchingVoid )
 		w = w->Reverse();
 	}
 
-	OutputWinding( w, group );
+	OutputWinding( w, group, p->nodes[0]->area, false );
 
 	if( sides == 2 )
 	{
@@ -165,32 +209,129 @@ void OutputPortal( uPortal_t* p, OBJGroup& group, bool touchingVoid )
 	}
 }
 
-
-
-void CollectPortals_r( node_t* node, OBJGroup& group, bool touchingOutside )
+// RB: this does not work in all maps
+void CollectOutsidePortals_r( node_t* node, OBJGroup& group )
 {
 	uPortal_t*	p, *nextp;
 
 	if( node->planenum != PLANENUM_LEAF )
 	{
-		CollectPortals_r( node->children[0], group, touchingOutside );
-		CollectPortals_r( node->children[1], group, touchingOutside );
+		CollectOutsidePortals_r( node->children[0], group );
+		CollectOutsidePortals_r( node->children[1], group );
+		return;
+	}
+
+	//if( !touchingOutside && node->opaque )
+	//{
+	//	return;
+	//}
+
+	// write all the portals
+	for( p = node->portals; p; p = nextp )
+	{
+		idWinding* w = p->winding;
+		int s = ( p->nodes[1] == node );
+		nextp = p->next[s];
+
+		if( w != NULL )
+		{
+			OutputPortal( p, group, true );
+		}
+	}
+}
+
+// like q3map WritePortalFile_r
+// collect all portals within the BSP that you can walk through
+void CollectPortals_r( node_t* node, OBJGroup& group )
+{
+	uPortal_t*	p, *nextp;
+
+	if( node->planenum != PLANENUM_LEAF )
+	{
+		CollectPortals_r( node->children[0], group );
+		CollectPortals_r( node->children[1], group );
+		return;
+	}
+
+	if( node->opaque )
+	{
 		return;
 	}
 
 	// write all the portals
 	for( p = node->portals; p; p = nextp )
 	{
-		if( p->nodes[0] == node )
+		idWinding* w = p->winding;
+		int s = ( p->nodes[1] == node );
+		nextp = p->next[s];
+
+		if( w != NULL )
 		{
-			OutputPortal( p, group, touchingOutside );
-			nextp = p->next[0];
-		}
-		else
-		{
-			nextp = p->next[1];
+			// only write out from first leaf
+			if( p->nodes[0] == node )
+			{
+				if( !Portal_Passable( p ) )
+				{
+					continue;
+				}
+
+				OutputWinding( w, group, node->area, false );
+			}
 		}
 	}
+}
+
+// like q3map WriteFaceFile_r
+void CollectFaces_r( node_t* node, OBJGroup& group )
+{
+	if( node->planenum != PLANENUM_LEAF )
+	{
+		CollectFaces_r( node->children[0], group );
+		CollectFaces_r( node->children[1], group );
+		return;
+	}
+
+	if( node->opaque )
+	{
+		return;
+	}
+
+	// write all the portals
+#if 0
+	uPortal_t*	p, *nextp;
+	for( p = node->portals; p; p = nextp )
+	{
+		idWinding* w = p->winding;
+		int s = ( p->nodes[1] == node );
+		nextp = p->next[s];
+
+		if( w != NULL )
+		{
+			if( Portal_Passable( p ) )
+			{
+				continue;
+			}
+
+			OutputWinding( w, group, node->area, p->nodes[0] != node );
+		}
+	}
+#else
+	uBrush_t* brush;
+	side_t*	s;
+	for( brush = node->brushlist; brush ; brush = brush->next )
+	{
+		for( int i = 0 ; i < brush->numsides; i++ )
+		{
+			s = &brush->sides[i];
+			if( !s->winding )
+			{
+				continue;
+			}
+
+			OutputWinding( s->winding, group, node->area, false );
+		}
+	}
+#endif
 }
 
 
@@ -361,7 +502,7 @@ void OutputSplitPlane( const node_t* node, idList<OBJGroup>& groups )
 			w.ClipInPlace( -plane );
 		}
 
-		OutputWinding( &w, *group );
+		OutputWinding( &w, *group, node->area, false );
 	}
 }
 
@@ -446,7 +587,7 @@ void CollectAreaPortals( idList<OBJGroup>& groups )
 
 		OBJGroup& group = groups.Alloc();
 		group.name.Format( "interAreaPortal.%i", i );
-		OutputWinding( w, group );
+		OutputWinding( w, group, -1, false );
 	}
 }
 
@@ -474,17 +615,23 @@ void WriteGLView( tree_t* tree, const char* source, int entityNum, bool force )
 
 	idList<OBJGroup> groups;
 
+	// like in q3map WritePortalFile_r
 	OBJGroup& portals = groups.Alloc();
-	portals.name = "face_portals";
-
-	CollectPortals_r( tree->headnode, portals, false );
+	portals.name = "portals";
+	CollectPortals_r( tree->headnode, portals );
 
 	common->Printf( "%5i c_glfaces\n", portals.faces.Num() );
 
+#if 0
 	OBJGroup& portals2 = groups.Alloc();
 	portals2.name = "void_portals";
-
 	CollectPortals_r( tree->headnode, portals2, true );
+
+	// like in q3map WriteFaceFile_r
+	OBJGroup& faces = groups.Alloc();
+	faces.name = "faces";
+	CollectFaces_r( tree->headnode, faces );
+#endif
 
 	int numLeafs = 0;
 	int numNodes = NumberNodes_r( tree->headnode, 0, numLeafs );
@@ -567,17 +714,19 @@ void WriteGLView( bspFace_t* list, const char* source )
 	path.Format( "%s_BSP_%s_%i.obj", dmapGlobals.mapFileBase, source, dmapGlobals.entityNum );
 	idFileLocal objFile( fileSystem->OpenFileWrite( path, "fs_basepath" ) );
 
-	//path.SetFileExtension( ".mtl" );
-	//idFileLocal mtlFile( fileSystem->OpenFileWrite( path, "fs_basepath" ) );
-
 	idList<OBJFace> faces;
 
 	for( bspFace_t*	face = list ; face ; face = face->next )
 	{
+		if( face->portal )
+		{
+			continue;
+		}
+
 		OBJFace& objFace = faces.Alloc();
 
-		for( int i = 0; i < face->w->GetNumPoints(); i++ )
-			//for( int i = face->w->GetNumPoints() - 1; i >= 0; i-- )
+		//for( int i = 0; i < face->w->GetNumPoints(); i++ )
+		for( int i = face->w->GetNumPoints() - 1; i >= 0; i-- )
 		{
 			idDrawVert& dv = objFace.verts.Alloc();
 

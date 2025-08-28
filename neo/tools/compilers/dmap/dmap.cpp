@@ -45,17 +45,16 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 {
 	bspFace_t*	faces;
 
-	// build a bsp tree using all of the sides
-	// of all of the structural brushes
 	faces = MakeStructuralBspFaceList( e->primitives );
 
-	// RB: dump BSP for debugging
+	// RB: dump input faces for debugging
 	if( dmapGlobals.glview )
 	{
 		WriteGLView( faces, "facelist" );
 	}
-	// RB end
 
+	// build a bsp tree using all of the sides
+	// of all of the structural brushes
 	e->tree = FaceBSP( faces );
 
 	// create portals at every leaf intersection
@@ -118,7 +117,7 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	{
 		OptimizeEntity( e );
 	}
-	else  if( !dmapGlobals.noTJunc )
+	else if( !dmapGlobals.noTJunc )
 	{
 		FixEntityTjunctions( e );
 	}
@@ -454,7 +453,6 @@ void Dmap( const idCmdArgs& args )
 
 			WriteGLView( world->tree, "pruned", 0, true );
 		}
-		// RB end
 	}
 	else
 	{

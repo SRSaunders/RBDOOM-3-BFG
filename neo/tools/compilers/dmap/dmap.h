@@ -387,13 +387,13 @@ void FillOutside( uEntity_t* e );
 void FloodAreas( uEntity_t* e );
 void MakeTreePortals( tree_t* tree );
 void FreePortal( uPortal_t* p );
+bool Portal_Passable( uPortal_t*  p );
 
 //=============================================================================
 
 // glfile.cpp -- write a debug file to be viewd with glview.exe
 
-void OutputWinding( idWinding* w, idFile* glview );
-
+idVec4 PickDebugColor( int area );
 void WriteGLView( tree_t* tree, const char* source, int entityNum, bool force = false );
 void WriteGLView( bspFace_t* list, const char* source );
 
