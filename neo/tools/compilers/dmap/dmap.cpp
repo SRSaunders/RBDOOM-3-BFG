@@ -167,6 +167,14 @@ bool ProcessModels()
 			return false;
 		}
 
+		// RB: dump BSP after nodes being pruned and optimized
+		if( dmapGlobals.exportDebugVisuals && dmapGlobals.entityNum == 0 )
+		{
+			uEntity_t* world = entity;
+
+			WriteGLView( world->tree, "unpruned", 0, true );
+		}
+
 		// we usually don't want to see output for submodels unless
 		// something strange is going on
 		if( !dmapGlobals.verboseentities )
@@ -211,6 +219,7 @@ void ResetDmapGlobals()
 	dmapGlobals.mapFileBase[0] = '\0';
 	dmapGlobals.dmapFile = NULL;
 	dmapGlobals.mapPlanes.Clear();
+	dmapGlobals.splitPlanesCounter.Clear();
 	dmapGlobals.numEntities = 0;
 	dmapGlobals.uEntities = NULL;
 	dmapGlobals.entityNum = 0;
@@ -453,14 +462,6 @@ void Dmap( const idCmdArgs& args )
 	if( ProcessModels() )
 	{
 		WriteOutputFile();
-
-		// RB: dump BSP after nodes being pruned and optimized
-		if( dmapGlobals.exportDebugVisuals )
-		{
-			uEntity_t* world = &dmapGlobals.uEntities[0];
-
-			WriteGLView( world->tree, "pruned", 0, true );
-		}
 	}
 	else
 	{
