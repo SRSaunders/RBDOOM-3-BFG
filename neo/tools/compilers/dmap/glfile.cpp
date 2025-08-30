@@ -386,12 +386,19 @@ void OutputNode( const node_t* node, idList<OBJGroup>& groups )
 
 	if( node->planenum == PLANENUM_LEAF )
 	{
-		if( !node->opaque )
+		//if( !node->opaque )
 		{
 			if( node->area != -1 )
 			{
 				group = &groups.Alloc();
-				group->name.Format( "area%i_leaf.%i", node->area, node->nodeNumber );
+				if( node->opaque )
+				{
+					group->name.Format( "area%i_leaf_opaque.%i", node->area, node->nodeNumber );
+				}
+				else
+				{
+					group->name.Format( "area%i_leaf.%i", node->area, node->nodeNumber );
+				}
 				group->area = node->area;
 			}
 		}
@@ -679,7 +686,7 @@ void WriteGLView( bspFace_t* list, const char* source )
 {
 	if( dmapGlobals.entityNum != 0 )
 	{
-		return;
+		//return;
 	}
 
 	idStrStatic< MAX_OSPATH > path;

@@ -736,7 +736,7 @@ void PutPrimitivesInAreas( uEntity_t* e )
 			// RB: add new polygon mesh
 			for( tri = prim->polyTris ; tri ; tri = tri->next )
 			{
-				// reverse vertex order for drawing
+				// we reversed the order for the BSP builder in ParsePolygonMesh, so put it back
 				idDrawVert tmp = tri->v[0];
 				tri->v[0] = tri->v[2];
 				tri->v[2] = tmp;

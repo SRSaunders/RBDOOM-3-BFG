@@ -501,6 +501,7 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 			// RB: glTF2 workflow insists to use triangles instead of n-gons or quads
 			mapTri_t* tri = AllocTri();
 
+			// reverse order because Doom 3 can't handle inside facing polygons for BSP building
 			tri->v[0] = verts[ indexes[ 2 ] ];
 			tri->v[1] = verts[ indexes[ 1 ] ];
 			tri->v[2] = verts[ indexes[ 0 ] ];

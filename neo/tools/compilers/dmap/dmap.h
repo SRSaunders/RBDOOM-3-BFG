@@ -74,8 +74,6 @@ typedef struct mapTri_s
 	int					polygonId;		// n-gon number from original face used for area portal construction
 
 	const MapPolygonMesh*	originalMapMesh;
-//	idWinding* 			visibleHull;	// also clipped to the solid parts of the world
-
 	// RB end
 
 	// from different fixed groups, like guiSurfs and mirrors
@@ -146,6 +144,7 @@ typedef struct bspBrush_s
 	int					contents;
 	bool				opaque;
 	int					outputNumber;		// set when the brush is written to the file list
+	bool                substractive;       // invert windings when building structural facelist
 
 	idBounds			bounds;
 	int					numsides;

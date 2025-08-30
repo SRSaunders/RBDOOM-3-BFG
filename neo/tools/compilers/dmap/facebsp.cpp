@@ -761,46 +761,159 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 	idWinding*	w;
 	bspFace_t*	f, *flist;
 	mapTri_t*	tri;
+	primitive_t* prims;
 
+	prims = list;
 	flist = NULL;
-	for( ; list; list = list->next )
+	if( dmapGlobals.entityNum != 0 )
 	{
-		// RB: support structural polygons instead of brushes
-		tri = list->polyTris;
-		if( tri )
+		idBounds bounds;
+		bounds.Clear();
+
+		for( ; list; list = list->next )
 		{
-			for( ; tri; tri = tri->next )
+			tri = list->polyTris;
+			if( tri )
 			{
-				MapPolygonMesh* mapMesh = ( MapPolygonMesh* ) tri->originalMapMesh;
-
-				// don't create BSP faces for the nodraw helpers touching the area portals
-				if( mapMesh->IsAreaportal() && !( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL ) )
+				for( ; tri; tri = tri->next )
 				{
-					continue;
+					bounds.AddPoint( tri->v[0].xyz );
+					bounds.AddPoint( tri->v[1].xyz );
+					bounds.AddPoint( tri->v[2].xyz );
 				}
 
-				f = AllocBspFace();
+				continue;
+			}
+		}
 
-				if( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL )
-				{
-					f->portal = true;
-				}
+		if( !bounds.IsCleared() )
+		{
+#if 1
+			b = BrushFromBounds( bounds );
+			//b->substractive = true;
+			b->opaque = true;
+			b->entitynum = dmapGlobals.entityNum;
+			b->contentShader = declManager->FindMaterial( "textures/common/caulk", false );
+			b->contents = b->contentShader->GetContentFlags();
 
-				//w = new idWinding( 3 );
-				//w->SetNumPoints( 3 );
-				//( *w )[0] = idVec5( tri->v[0].xyz, tri->v[0].GetTexCoord() );
-				//( *w )[1] = idVec5( tri->v[1].xyz, tri->v[1].GetTexCoord() );
-				//( *w )[2] = idVec5( tri->v[2].xyz, tri->v[2].GetTexCoord() );
-
-				w = WindingForTri( tri );
-				f->w = w;
-
-				f->planenum = tri->planeNum & ~1;
-				f->next = flist;
-				flist = f;
+			for( i = 0; i < b->numsides; i++ )
+			{
+				s = &b->sides[i];
+				s->material = b->contentShader;
 			}
 
-			continue;
+			primitive_t* prim = ( primitive_t* )Mem_Alloc( sizeof( *prim ), TAG_TOOLS );
+			memset( prim, 0, sizeof( *prim ) );
+			prim->next = prims;
+			prims = prim;
+
+			prim->brush = b;
+#else
+			// create six brushes that enclose the six sides of the bounding box
+			idBounds sideBounds[6];
+			uBrush_t* brushes[6];
+			int i, j;
+			float thickness = 4.0f; // thickness of the brushes (set to 4 units)
+
+			// define the bounding boxes for the six sides with a thickness of 4
+			// left (x = bounds[0][0])
+			sideBounds[0] = idBounds(
+								idVec3( bounds[0][0] - thickness, bounds[0][1], bounds[0][2] ),
+								idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
+							);
+			// right (x = bounds[1][0])
+			sideBounds[1] = idBounds(
+								idVec3( bounds[1][0], bounds[0][1], bounds[0][2] ),
+								idVec3( bounds[1][0] + thickness, bounds[1][1], bounds[1][2] )
+							);
+			// top (z = bounds[1][2])
+			sideBounds[2] = idBounds(
+								idVec3( bounds[0][0], bounds[0][1], bounds[1][2] ),
+								idVec3( bounds[1][0], bounds[1][1], bounds[1][2] + thickness )
+							);
+			// bottom (z = bounds[0][2])
+			sideBounds[3] = idBounds(
+								idVec3( bounds[0][0], bounds[0][1], bounds[0][2] - thickness ),
+								idVec3( bounds[1][0], bounds[1][1], bounds[0][2] )
+							);
+			// front (y = bounds[1][1])
+			sideBounds[4] = idBounds(
+								idVec3( bounds[0][0], bounds[1][1], bounds[0][2] ),
+								idVec3( bounds[1][0], bounds[1][1] + thickness, bounds[1][2] )
+							);
+			// back (y = bounds[0][1])
+			sideBounds[5] = idBounds(
+								idVec3( bounds[0][0], bounds[0][1] - thickness, bounds[0][2] ),
+								idVec3( bounds[1][0], bounds[0][1], bounds[1][2] )
+							);
+
+			// create a brush for each side
+			for( i = 0; i < 6; i++ )
+			{
+				brushes[i] = BrushFromBounds( sideBounds[i] );
+				//brushes[i]->substractive = true;
+				//brushes[i]->opaque = true;
+				brushes[i]->entitynum = dmapGlobals.entityNum;
+				brushes[i]->contentShader = declManager->FindMaterial( "textures/common/caulk", false );
+				brushes[i]->contents = brushes[i]->contentShader->GetContentFlags();
+				brushes[i]->opaque = brushes[i]->contentShader->Coverage() == MC_OPAQUE;
+
+				for( j = 0; j < brushes[i]->numsides; j++ )
+				{
+					side_t* s = &brushes[i]->sides[j];
+					s->material = brushes[i]->contentShader;
+				}
+
+				// Create a primitive_t structure for the brush
+				primitive_t* prim = ( primitive_t* )Mem_Alloc( sizeof( *prim ), TAG_TOOLS );
+				memset( prim, 0, sizeof( *prim ) );
+				prim->next = prims;
+				prims = prim;
+
+				prim->brush = brushes[i];
+			}
+#endif
+		}
+
+	}
+
+	for( list = prims; list; list = list->next )
+	{
+		// RB: support structural polygons instead of brushes but only for the worldspawn.
+		// Building a full BSP tree for complex models made in Blender leads to visible cracks
+		// so we only feed the triangles later into the empty BSP tree of the entity
+		if( dmapGlobals.entityNum == 0 )
+		{
+			tri = list->polyTris;
+			if( tri )
+			{
+				for( ; tri; tri = tri->next )
+				{
+					MapPolygonMesh* mapMesh = ( MapPolygonMesh* ) tri->originalMapMesh;
+
+					// don't create BSP faces for the nodraw helpers touching the area portals
+					if( mapMesh->IsAreaportal() && !( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL ) )
+					{
+						continue;
+					}
+
+					f = AllocBspFace();
+
+					if( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL )
+					{
+						f->portal = true;
+					}
+
+					w = WindingForTri( tri );
+					f->w = w;
+
+					f->planenum = tri->planeNum & ~1;
+					f->next = flist;
+					flist = f;
+				}
+
+				continue;
+			}
 		}
 		// RB end
 
@@ -810,7 +923,7 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 			continue;
 		}
 
-		if( !b->opaque && !( b->contents & CONTENTS_AREAPORTAL ) )
+		if( !b->opaque && !( b->contents & CONTENTS_AREAPORTAL ) && !b->substractive )
 		{
 			continue;
 		}
@@ -837,8 +950,22 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 				f->portal = true;
 			}
 
-			f->w = w->Copy();
-			f->planenum = s->planenum & ~1;
+
+			if( b->substractive )
+			{
+				f->w = w->Reverse();
+				f->planenum = ( s->planenum ^ 1 ) & ~1;
+
+				//idPlane plane;
+				//f->w->GetPlane( plane );
+				//f->planenum = FindFloatPlane( plane );
+			}
+			else
+			{
+				f->w = w->Copy();
+				f->planenum = s->planenum & ~1;
+			}
+
 			f->next = flist;
 			flist = f;
 		}

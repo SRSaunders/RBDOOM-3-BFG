@@ -228,7 +228,7 @@ void ResetDmapGlobals()
 	dmapGlobals.exportObj = false;
 	dmapGlobals.asciiTree = false;
 	dmapGlobals.noOptimize = false;
-	dmapGlobals.verboseentities = false;
+	dmapGlobals.verboseentities = true;
 	dmapGlobals.noCurves = false;
 	dmapGlobals.fullCarve = false;
 	dmapGlobals.noModelBrushes = false;
