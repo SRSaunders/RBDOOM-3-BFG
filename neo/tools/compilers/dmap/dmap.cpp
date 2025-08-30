@@ -168,11 +168,11 @@ bool ProcessModels()
 		}
 
 		// RB: dump BSP after nodes being pruned and optimized
-		if( dmapGlobals.exportDebugVisuals && dmapGlobals.entityNum == 0 )
+		if( dmapGlobals.exportDebugVisuals )//&& dmapGlobals.entityNum == 0 )
 		{
 			uEntity_t* world = entity;
 
-			WriteGLView( world->tree, "unpruned", 0, true );
+			WriteGLView( world->tree, "unpruned", dmapGlobals.entityNum, true );
 		}
 
 		// we usually don't want to see output for submodels unless
