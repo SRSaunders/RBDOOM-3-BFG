@@ -475,6 +475,7 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 	memset( prim, 0, sizeof( *prim ) );
 	prim->next = uEntity->primitives;
 	uEntity->primitives = prim;
+	uEntity->hasPolyTris = true;
 
 	const idList<idDrawVert>& verts = mesh->GetDrawVerts();
 

@@ -742,7 +742,7 @@ tree_t* FaceBSP( bspFace_t* list )
 	{
 		int depth = log2f( c_faceLeafs + 1 );
 		common->Printf( "BSP depth = %i and %5i leafs\n", depth, c_faceLeafs );
-		common->Printf( "%5i split counters\n", dmapGlobals.splitPlanesCounter.Num() );
+		common->Printf( "%5i split planes\n", dmapGlobals.splitPlanesCounter.Num() );
 
 		if( dmapGlobals.bspAlternateSplitWeights && dmapGlobals.entityNum == 0 )
 		{
@@ -831,6 +831,8 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 			prims = prim;
 
 			prim->brush = b;
+
+			// TODO tell ProcessModel() we are using the simple structural BSP
 		}
 
 	}

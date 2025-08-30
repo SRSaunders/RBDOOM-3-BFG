@@ -1279,9 +1279,18 @@ void FillOutside( uEntity_t* e )
 	c_outside = 0;
 	c_inside = 0;
 	c_solid = 0;
-	common->Printf( "--- FillOutside ---\n" );
+
 	FillOutside_r( e->tree->headnode );
-	common->Printf( "%5i solid leafs\n", c_solid );
-	common->Printf( "%5i leafs filled\n", c_outside );
-	common->Printf( "%5i inside leafs\n", c_inside );
+
+	if( dmapGlobals.entityNum == 0 )
+	{
+		common->Printf( "--- FillOutside ---\n" );
+		common->Printf( "%5i solid leafs\n", c_solid );
+		common->Printf( "%5i leafs filled\n", c_outside );
+		common->Printf( "%5i inside leafs\n", c_inside );
+	}
+	else
+	{
+		common->VerbosePrintf( "entity %i: %i solid leafs, %i leafs filled, %i inside leafs\n", dmapGlobals.entityNum, c_solid, c_outside, c_inside );
+	}
 }

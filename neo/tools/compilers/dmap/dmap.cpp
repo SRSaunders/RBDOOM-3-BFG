@@ -76,9 +76,9 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	}
 
 	// see if the bsp is completely enclosed
-	//if( floodFill && !dmapGlobals.noFlood )
+	if( ( floodFill && !dmapGlobals.noFlood ) || e->hasPolyTris )
 	{
-		if( dmapGlobals.entityNum != 0 )
+		if( e->hasPolyTris && dmapGlobals.entityNum != 0 )
 		{
 			// mark center of entity as occupied so FillOutside works
 			idVec3 center = e->tree->bounds.GetCenter();
@@ -88,7 +88,7 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 			}
 		}
 
-		if( dmapGlobals.entityNum != 0 || FloodEntities( e->tree ) )
+		if( ( e->hasPolyTris && dmapGlobals.entityNum != 0 ) || FloodEntities( e->tree ) )
 		{
 			// set the outside leafs to opaque
 			FillOutside( e );

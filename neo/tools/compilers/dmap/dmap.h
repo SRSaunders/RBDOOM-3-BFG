@@ -55,6 +55,7 @@ typedef struct
 
 	idVec3				origin;
 	primitive_t* 		primitives;
+	bool				hasPolyTris;	// true if any of the primitives are polyTris
 	struct tree_s* 		tree;
 
 	int					numAreas;
