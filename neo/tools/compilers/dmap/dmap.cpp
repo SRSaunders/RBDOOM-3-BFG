@@ -62,18 +62,33 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	MakeTreePortals( e->tree );
 
 	// RB: calculate node numbers for split plane analysis
-	NumberNodes_r( e->tree->headnode, 0 );
+	int numLeafs = 0;
+	int numNodes = NumberNodes_r( e->tree->headnode, 0, numLeafs );
+	int depth = log2f( numLeafs + 1 );
 
 	// classify the leafs as opaque or areaportal
 	FilterBrushesIntoTree( e );
 
 	// RB: use mapTri_t by MapPolygonMesh primitives in case we don't use brushes
-	FilterMeshesIntoTree( e );
+	if( dmapGlobals.entityNum == 0 )
+	{
+		FilterMeshesIntoTree( e );
+	}
 
 	// see if the bsp is completely enclosed
-	if( floodFill && !dmapGlobals.noFlood )
+	//if( floodFill && !dmapGlobals.noFlood )
 	{
-		if( FloodEntities( e->tree ) )
+		if( dmapGlobals.entityNum != 0 )
+		{
+			// mark center of entity as occupied so FillOutside works
+			idVec3 center = e->tree->bounds.GetCenter();
+			if( PlaceOccupant( e->tree->headnode, center, e ) )
+			{
+				bool inside = true;
+			}
+		}
+
+		if( dmapGlobals.entityNum != 0 || FloodEntities( e->tree ) )
 		{
 			// set the outside leafs to opaque
 			FillOutside( e );
@@ -84,11 +99,15 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 			common->Warning( "******* leaked *******" );
 			common->Printf( "**********************\n" );
 			LeakFile( e->tree );
-			WriteGLView( e->tree, "leaked", 0, true );
+			WriteGLView( e->tree, "leaked", dmapGlobals.entityNum, true );
 			// bail out here.  If someone really wants to
 			// process a map that leaks, they should use
 			// -noFlood
-			return false;
+
+			if( floodFill && !dmapGlobals.noFlood )
+			{
+				return false;
+			}
 		}
 	}
 
@@ -228,7 +247,7 @@ void ResetDmapGlobals()
 	dmapGlobals.exportObj = false;
 	dmapGlobals.asciiTree = false;
 	dmapGlobals.noOptimize = false;
-	dmapGlobals.verboseentities = true;
+	dmapGlobals.verboseentities = false;
 	dmapGlobals.noCurves = false;
 	dmapGlobals.fullCarve = false;
 	dmapGlobals.noModelBrushes = false;

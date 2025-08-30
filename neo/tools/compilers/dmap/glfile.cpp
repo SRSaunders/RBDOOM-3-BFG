@@ -388,7 +388,7 @@ void OutputNode( const node_t* node, idList<OBJGroup>& groups )
 	{
 		//if( !node->opaque )
 		{
-			if( node->area != -1 )
+			//if( node->area != -1 )
 			{
 				group = &groups.Alloc();
 				if( node->opaque )
@@ -536,12 +536,13 @@ void CollectNodes_r( node_t* node, idList<OBJGroup>& groups )
 		return;
 	}
 
-	//OutputAreaPortalTriangles( node, groups );
 	OutputNode( node, groups );
+
+	//OutputAreaPortalTriangles( node, groups );
 }
 
 // RB: slightly changed variant from output.cpp to number both nodes and leafs
-static int NumberNodes_r( node_t* node, int nextNode, int& nextLeaf )
+int NumberNodes_r( node_t* node, int nextNode, int& nextLeaf )
 {
 	if( node->planenum == PLANENUM_LEAF )
 	{

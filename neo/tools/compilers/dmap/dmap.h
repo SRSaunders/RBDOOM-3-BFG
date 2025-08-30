@@ -365,6 +365,7 @@ struct interAreaPortal_t
 
 extern idList<interAreaPortal_t> interAreaPortals;
 
+bool PlaceOccupant( node_t* headnode, idVec3 origin, uEntity_t* occupant );
 bool FloodEntities( tree_t* tree );
 void FillOutside( uEntity_t* e );
 void FloodAreas( uEntity_t* e );
@@ -391,11 +392,12 @@ void LeakFile( tree_t* tree );
 // facebsp.cpp
 
 tree_t* AllocTree();
-
 void FreeTree( tree_t* tree );
 
 void FreeTree_r( node_t* node );
 void FreeTreePortals_r( node_t* node );
+
+void PrintTree_r( node_t* node, int depth );
 
 
 bspFace_t*	MakeStructuralBspFaceList( primitive_t* list );
@@ -504,6 +506,8 @@ void		ClipTriList( const mapTri_t* list, const idPlane& plane, float epsilon, ma
 
 // output.cpp
 
+// RB: slightly changed variant from output.cpp to number both nodes and leafs
+int			NumberNodes_r( node_t* node, int nextNode, int& nextLeaf );
 int			NumberNodes_r( node_t* node, int nextNumber );
 
 srfTriangles_t*	ShareMapTriVerts( const mapTri_t* tris );

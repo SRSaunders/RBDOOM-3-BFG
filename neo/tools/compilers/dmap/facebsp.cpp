@@ -133,33 +133,49 @@ void FreeTree( tree_t* tree )
 
 void PrintTree_r( node_t* node, int depth )
 {
-	int			i;
-	uBrush_t*	bb;
-
-	for( i = 0 ; i < depth ; i++ )
+	for( int i = 0 ; i < depth; i++ )
 	{
 		common->Printf( "  " );
 	}
+
 	if( node->planenum == PLANENUM_LEAF )
 	{
+		/*
 		if( !node->brushlist )
 		{
 			common->Printf( "NULL\n" );
 		}
 		else
 		{
-			for( bb = node->brushlist ; bb ; bb = bb->next )
+			for( uBrush_t* bb = node->brushlist ; bb ; bb = bb->next )
 			{
 				common->Printf( "%i ", bb->original->brushnum );
 			}
 			common->Printf( "\n" );
 		}
+		*/
+
+		common->Printf( "leaf %i", node->nodeNumber );
+		if( node->area >= 0 )
+		{
+			common->Printf( " area %i", node->area );
+		}
+		if( node->opaque )
+		{
+			common->Printf( " opaque" );
+		}
+		if( node->occupied )
+		{
+			common->Printf( " occupied" );
+		}
+		common->Printf( "\n" );
 		return;
 	}
 
 	idPlane& plane = dmapGlobals.mapPlanes[node->planenum];
-	common->Printf( "#%i (%5.2f %5.2f %5.2f %5.2f)\n", node->planenum,
+	common->Printf( "#%i plane = %i (%5.2f %5.2f %5.2f %5.2f)\n", node->nodeNumber, node->planenum,
 					plane[0], plane[1], plane[2], plane[3] );
+
 	PrintTree_r( node->children[0], depth + 1 );
 	PrintTree_r( node->children[1], depth + 1 );
 }
@@ -728,7 +744,7 @@ tree_t* FaceBSP( bspFace_t* list )
 		common->Printf( "BSP depth = %i and %5i leafs\n", depth, c_faceLeafs );
 		common->Printf( "%5i split counters\n", dmapGlobals.splitPlanesCounter.Num() );
 
-		if( dmapGlobals.bspAlternateSplitWeights )
+		if( dmapGlobals.bspAlternateSplitWeights && dmapGlobals.entityNum == 0 )
 		{
 			for( int i = 0; i < dmapGlobals.splitPlanesCounter.Num(); i++ )
 			{
@@ -739,9 +755,17 @@ tree_t* FaceBSP( bspFace_t* list )
 				idLib::Printf( "%d\t%d\n", key, *value );
 			}
 		}
-	}
 
-	//PrintTree_r(tree->headnode, depth );
+		/*
+		if( dmapGlobals.entityNum == 2 )
+		{
+			int numLeafs = 0;
+			int numNodes = NumberNodes_r( tree->headnode, 0, numLeafs );
+
+			PrintTree_r(tree->headnode, depth );
+		}
+		*/
+	}
 
 	return tree;
 }
@@ -788,7 +812,6 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 
 		if( !bounds.IsCleared() )
 		{
-#if 1
 			b = BrushFromBounds( bounds );
 			//b->substractive = true;
 			b->opaque = true;
@@ -808,71 +831,6 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 			prims = prim;
 
 			prim->brush = b;
-#else
-			// create six brushes that enclose the six sides of the bounding box
-			idBounds sideBounds[6];
-			uBrush_t* brushes[6];
-			int i, j;
-			float thickness = 4.0f; // thickness of the brushes (set to 4 units)
-
-			// define the bounding boxes for the six sides with a thickness of 4
-			// left (x = bounds[0][0])
-			sideBounds[0] = idBounds(
-								idVec3( bounds[0][0] - thickness, bounds[0][1], bounds[0][2] ),
-								idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
-							);
-			// right (x = bounds[1][0])
-			sideBounds[1] = idBounds(
-								idVec3( bounds[1][0], bounds[0][1], bounds[0][2] ),
-								idVec3( bounds[1][0] + thickness, bounds[1][1], bounds[1][2] )
-							);
-			// top (z = bounds[1][2])
-			sideBounds[2] = idBounds(
-								idVec3( bounds[0][0], bounds[0][1], bounds[1][2] ),
-								idVec3( bounds[1][0], bounds[1][1], bounds[1][2] + thickness )
-							);
-			// bottom (z = bounds[0][2])
-			sideBounds[3] = idBounds(
-								idVec3( bounds[0][0], bounds[0][1], bounds[0][2] - thickness ),
-								idVec3( bounds[1][0], bounds[1][1], bounds[0][2] )
-							);
-			// front (y = bounds[1][1])
-			sideBounds[4] = idBounds(
-								idVec3( bounds[0][0], bounds[1][1], bounds[0][2] ),
-								idVec3( bounds[1][0], bounds[1][1] + thickness, bounds[1][2] )
-							);
-			// back (y = bounds[0][1])
-			sideBounds[5] = idBounds(
-								idVec3( bounds[0][0], bounds[0][1] - thickness, bounds[0][2] ),
-								idVec3( bounds[1][0], bounds[0][1], bounds[1][2] )
-							);
-
-			// create a brush for each side
-			for( i = 0; i < 6; i++ )
-			{
-				brushes[i] = BrushFromBounds( sideBounds[i] );
-				//brushes[i]->substractive = true;
-				//brushes[i]->opaque = true;
-				brushes[i]->entitynum = dmapGlobals.entityNum;
-				brushes[i]->contentShader = declManager->FindMaterial( "textures/common/caulk", false );
-				brushes[i]->contents = brushes[i]->contentShader->GetContentFlags();
-				brushes[i]->opaque = brushes[i]->contentShader->Coverage() == MC_OPAQUE;
-
-				for( j = 0; j < brushes[i]->numsides; j++ )
-				{
-					side_t* s = &brushes[i]->sides[j];
-					s->material = brushes[i]->contentShader;
-				}
-
-				// Create a primitive_t structure for the brush
-				primitive_t* prim = ( primitive_t* )Mem_Alloc( sizeof( *prim ), TAG_TOOLS );
-				memset( prim, 0, sizeof( *prim ) );
-				prim->next = prims;
-				prims = prim;
-
-				prim->brush = brushes[i];
-			}
-#endif
 		}
 
 	}
@@ -906,8 +864,8 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 
 					w = WindingForTri( tri );
 					f->w = w;
-
 					f->planenum = tri->planeNum & ~1;
+
 					f->next = flist;
 					flist = f;
 				}
