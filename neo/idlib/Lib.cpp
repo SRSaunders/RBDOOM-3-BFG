@@ -115,7 +115,7 @@ void idLib::ShutDown()
 const idVec4 colorBlack   = idVec4( 0.00f, 0.00f, 0.00f, 1.00f ); // #000000
 const idVec4 colorWhite   = idVec4( 1.00f, 1.00f, 1.00f, 1.00f ); // #FFFFFF
 const idVec4 colorRed     = idVec4( 1.00f, 0.00f, 0.00f, 1.00f ); // #FF0000
-const idVec4 colorGreen   = idVec4( 0.00f, 1.00f, 0.00f, 1.00f ); // #00FF00
+const idVec4 colorGreen   = idVec4( 0.00f, 0.50f, 0.00f, 1.00f ); // #00FF00
 const idVec4 colorBlue    = idVec4( 0.00f, 0.00f, 1.00f, 1.00f ); // #0000FF
 const idVec4 colorYellow  = idVec4( 1.00f, 1.00f, 0.00f, 1.00f ); // #FFFF00
 const idVec4 colorMagenta = idVec4( 1.00f, 0.00f, 1.00f, 1.00f ); // #FF00FF
@@ -140,6 +140,11 @@ const idVec4 colorNavy    = idVec4( 0.00f, 0.00f, 0.50f, 1.00f ); // #000080
 const idVec4 colorTeal    = idVec4( 0.00f, 0.50f, 0.50f, 1.00f ); // #008080
 const idVec4 colorAqua    = idVec4( 0.00f, 1.00f, 1.00f, 1.00f ); // #00FFFF
 
+// New additions
+const idVec4 colorDarkKhaki    = idVec4( 0.74f, 0.72f, 0.42f, 1.00f ); // #BDB76B
+const idVec4 colorDarkSalmon   = idVec4( 0.91f, 0.59f, 0.48f, 1.00f ); // #E9967A
+const idVec4 colorDarkSlateGray = idVec4( 0.18f, 0.31f, 0.31f, 1.00f ); // #2F4F4F
+const idVec4 colorDodgerBlue   = idVec4( 0.12f, 0.56f, 1.00f, 1.00f ); // #1E90FF
 /*
 ================
 PackColor

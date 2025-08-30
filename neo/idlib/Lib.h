@@ -141,6 +141,13 @@ extern const idVec4 colorNavy;
 extern const idVec4 colorTeal;
 extern const idVec4 colorAqua;
 
+// more CSS colors
+extern const idVec4 colorDarkKhaki;
+extern const idVec4 colorDarkSalmon;
+extern const idVec4 colorDarkSlateGray;
+extern const idVec4 colorDodgerBlue;
+
+
 // packs color floats in the range [0,1] into an integer
 dword	PackColor( const idVec3& color );
 void	UnpackColor( const dword color, idVec3& unpackedColor );

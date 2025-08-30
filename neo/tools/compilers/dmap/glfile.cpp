@@ -94,18 +94,19 @@ idVec4 PickDebugColor( int area )
 		colorBlue,   colorYellow,
 
 		// Strong contrast pairs
-		colorLime,   colorNavy,
-		colorFuchsia, colorBlack,
+		colorDarkSlateGray,   colorNavy,
+		colorDarkKhaki, colorBlack,
 
 		// Accent color pairs
 		colorOrange, colorTeal,
-		colorPurple, colorOlive,
+		colorDarkSalmon, colorOlive,
 		colorMdGrey, colorAqua,
-		colorBrown,  colorGold
+		colorBrown,  colorGold,
+		colorDarkSlateGray, colorDodgerBlue
 	};
 	static const int numColors = sizeof( colors ) / sizeof( colors[0] );
 
-	idVec4 color = ( area > -1 ) ? ( colors[area % numColors] ) : colorMagenta;
+	idVec4 color = ( area > -1 ) ? ( colors[area % numColors] ) : colorLime;
 
 	// tint selected color a bit for each surface
 	static	int	level = 128;
