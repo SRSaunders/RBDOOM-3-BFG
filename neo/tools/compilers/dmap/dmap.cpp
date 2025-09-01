@@ -41,7 +41,7 @@ dmapGlobals_t	dmapGlobals;
 ProcessModel
 ============
 */
-bool ProcessModel( uEntity_t* e, bool floodFill )
+bool ProcessModel( uEntity_t* e, bool floodFillWorld )
 {
 	bspFace_t*	faces;
 
@@ -50,7 +50,7 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	// RB: dump input faces for debugging
 	if( dmapGlobals.exportDebugVisuals )
 	{
-		WriteGLView( faces, "facelist" );
+		WriteGLViewFacelist( faces, "facelist" );
 	}
 
 	// build a bsp tree using all of the sides
@@ -76,19 +76,25 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	}
 
 	// see if the bsp is completely enclosed
-	if( ( floodFill && !dmapGlobals.noFlood ) || e->hasPolyTris )
+	bool floodFillEntity = ( e->tree->simpleBSP && dmapGlobals.entityNum != 0 );
+	if( floodFillEntity )
 	{
-		if( e->hasPolyTris && dmapGlobals.entityNum != 0 )
+		// mark center of entity as occupied so FillOutside works
+		idVec3 center = e->tree->bounds.GetCenter();
+		if( PlaceOccupant( e->tree->headnode, center, e ) )
 		{
-			// mark center of entity as occupied so FillOutside works
-			idVec3 center = e->tree->bounds.GetCenter();
-			if( PlaceOccupant( e->tree->headnode, center, e ) )
-			{
-				bool inside = true;
-			}
+			bool inside = true;
 		}
 
-		if( ( e->hasPolyTris && dmapGlobals.entityNum != 0 ) || FloodEntities( e->tree ) )
+		//if( inside ) // should always work
+		{
+			// set the outside leafs to opaque
+			FillOutside( e );
+		}
+	}
+	else if( ( floodFillWorld && !dmapGlobals.noFlood ) )
+	{
+		if( FloodEntities( e->tree ) )
 		{
 			// set the outside leafs to opaque
 			FillOutside( e );
@@ -99,12 +105,12 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 			common->Warning( "******* leaked *******" );
 			common->Printf( "**********************\n" );
 			LeakFile( e->tree );
-			WriteGLView( e->tree, "leaked", dmapGlobals.entityNum, true );
+			WriteGLViewBSP( e->tree, "leaked", dmapGlobals.entityNum, dmapGlobals.verboseentities );
+
 			// bail out here.  If someone really wants to
 			// process a map that leaks, they should use
 			// -noFlood
-
-			if( floodFill && !dmapGlobals.noFlood )
+			if( floodFillWorld && !dmapGlobals.noFlood )
 			{
 				return false;
 			}
@@ -187,11 +193,11 @@ bool ProcessModels()
 		}
 
 		// RB: dump BSP after nodes being pruned and optimized
-		if( dmapGlobals.exportDebugVisuals )//&& dmapGlobals.entityNum == 0 )
+		if( dmapGlobals.exportDebugVisuals )
 		{
 			uEntity_t* world = entity;
 
-			WriteGLView( world->tree, "unpruned", dmapGlobals.entityNum, true );
+			WriteGLViewBSP( world->tree, "unpruned", dmapGlobals.entityNum, dmapGlobals.verboseentities );
 		}
 
 		// we usually don't want to see output for submodels unless

@@ -37,9 +37,9 @@ typedef struct primitive_s
 	struct primitive_s* next;
 
 	// only one of these will be non-NULL
-	struct bspBrush_s* 	brush;
-	struct mapTri_s* 	curveTris;
-	struct mapTri_s*	polyTris;
+	struct bspBrush_s* 	brush;			// can be structural or translucent
+	struct mapTri_s*	curveTris;		// never structural
+	struct mapTri_s*	polyTris;		// RB: new and contribute to BSP, same as brush
 } primitive_t;
 
 
@@ -108,6 +108,7 @@ typedef struct bspFace_s
 	struct bspFace_s* 	next;
 	int					planenum;
 	bool				portal;			// all portals will be selected before
+	bool				simpleBSP;		// RB: true if the face is part of a simple structural BSP
 	// any non-portals
 	bool				checked;		// used by SelectSplitPlaneNum()
 	idWinding* 			w;
@@ -135,17 +136,18 @@ typedef struct side_s
 typedef struct bspBrush_s
 {
 	struct bspBrush_s* 	next;
-	struct bspBrush_s* 	original;	// chopped up brushes will reference the originals
+	struct bspBrush_s* 	original;			// chopped up brushes will reference the originals
 
 	int					entitynum;			// editor numbering for messages
 	int					brushnum;			// editor numbering for messages
 
-	const idMaterial* 	contentShader;	// one face's shader will determine the volume attributes
+	const idMaterial* 	contentShader;		// one face's shader will determine the volume attributes
 
 	int					contents;
 	bool				opaque;
 	int					outputNumber;		// set when the brush is written to the file list
-	bool                substractive;       // invert windings when building structural facelist
+	bool                substractive;       // RB: invert windings when building structural facelist
+	bool                simpleBSP;          // RB: hint that the BSP only uses this brush which is the AABB of the non-worldspawn model
 
 	idBounds			bounds;
 	int					numsides;
@@ -190,7 +192,7 @@ typedef struct node_s
 typedef struct uPortal_s
 {
 	idPlane		plane;
-	node_t*		onnode;		// NULL = outside box
+	node_t*		onnode;			// NULL = outside box
 	node_t*		nodes[2];		// [0] = front side of plane
 	struct uPortal_s*	next[2];
 	idWinding*	winding;
@@ -202,6 +204,7 @@ typedef struct tree_s
 	node_t*		headnode;
 	node_t		outside_node;
 	idBounds	bounds;
+	bool		simpleBSP;		// RB: made by only 1 brush which is the AABB of the non-worldspawn model
 } tree_t;
 
 #define	MAX_QPATH			256			// max length of a game pathname
@@ -379,8 +382,8 @@ bool Portal_Passable( uPortal_t*  p );
 // glfile.cpp -- write a debug file to be viewd with glview.exe
 
 idVec4 PickDebugColor( int area );
-void WriteGLView( tree_t* tree, const char* source, int entityNum, bool force = false );
-void WriteGLView( bspFace_t* list, const char* source );
+void WriteGLViewBSP( tree_t* tree, const char* source, int entityNum, bool force = false );
+void WriteGLViewFacelist( bspFace_t* list, const char* source, bool force = false );
 
 //=============================================================================
 

@@ -88,25 +88,23 @@ idVec4 PickDebugColor( int area )
 {
 	static const idVec4 colors[] =
 	{
-		// Primary / Complementary
-		colorRed,    colorCyan,
-		colorGreen,  colorPink,
-		colorBlue,   colorYellow,
-
-		// Strong contrast pairs
-		colorDarkSlateGray,   colorNavy,
-		colorDarkKhaki, colorBlack,
-
-		// Accent color pairs
-		colorOrange, colorTeal,
-		colorDarkSalmon, colorOlive,
-		colorMdGrey, colorAqua,
-		colorBrown,  colorGold,
-		colorDarkSlateGray, colorDodgerBlue
+		// Mixed sequence for stronger contrast
+		colorRed,            colorDodgerBlue,
+		colorDarkKhaki,      colorAqua,
+		colorCrimson,        colorTeal,
+		colorOlive,          colorCoral,
+		colorDarkSlateGray,  colorYellow,
+		colorBurlyWood,      colorDarkBlue,
+		colorGreen,          colorBrown,
+		colorLightSeaGreen,  colorGold,
+		colorNavy,           colorOrange,
+		colorDarkGoldenRod,  colorDarkSalmon,
+		colorLightSteelBlue, colorBlack,
+		colorGray,           colorDarkKhaki,
 	};
 	static const int numColors = sizeof( colors ) / sizeof( colors[0] );
 
-	idVec4 color = ( area > -1 ) ? ( colors[area % numColors] ) : colorLime;
+	idVec4 color = ( area > -1 ) ? ( colors[area % numColors] ) : colorPink;
 
 	// tint selected color a bit for each surface
 	static	int	level = 128;
@@ -589,7 +587,7 @@ void CollectAreaPortals( idList<OBJGroup>& groups )
 WriteGLView
 =============
 */
-void WriteGLView( tree_t* tree, const char* source, int entityNum, bool force )
+void WriteGLViewBSP( tree_t* tree, const char* source, int entityNum, bool force )
 {
 	//c_glfaces = 0;
 	//common->Printf( "Writing %s\n", source );
@@ -684,11 +682,11 @@ void WriteGLView( tree_t* tree, const char* source, int entityNum, bool force )
 }
 
 
-void WriteGLView( bspFace_t* list, const char* source )
+void WriteGLViewFacelist( bspFace_t* list, const char* source, bool force )
 {
-	if( dmapGlobals.entityNum != 0 )
+	if( dmapGlobals.entityNum != 0 && !force )
 	{
-		//return;
+		return;
 	}
 
 	idStrStatic< MAX_OSPATH > path;

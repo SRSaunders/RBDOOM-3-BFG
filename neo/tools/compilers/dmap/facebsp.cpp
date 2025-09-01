@@ -725,6 +725,11 @@ tree_t* FaceBSP( bspFace_t* list )
 		{
 			tree->bounds.AddPoint( ( *face->w )[i].ToVec3() );
 		}
+
+		if( face->simpleBSP )
+		{
+			tree->simpleBSP = true;
+		}
 	}
 	common->VerbosePrintf( "%5i faces\n", count );
 
@@ -814,6 +819,7 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 		{
 			b = BrushFromBounds( bounds );
 			//b->substractive = true;
+			b->simpleBSP = true;
 			b->opaque = true;
 			b->entitynum = dmapGlobals.entityNum;
 			b->contentShader = declManager->FindMaterial( "textures/common/caulk", false );
@@ -910,6 +916,7 @@ bspFace_t*	MakeStructuralBspFaceList( primitive_t* list )
 				f->portal = true;
 			}
 
+			f->simpleBSP = b->simpleBSP;
 
 			if( b->substractive )
 			{
