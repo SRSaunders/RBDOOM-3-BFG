@@ -511,12 +511,11 @@ sysEvent_t Sys_GetEvent()
 						SDL_Window* window = SDL_GetWindowFromID( ev.window.windowID );
 						if( !renderSystem->IsFullScreen() && !( SDL_GetWindowFlags( window ) & SDL_WINDOW_MAXIMIZED ) )
 						{
-							// SRS - take window border into account when when saving window position cvars
-							int topBorder, leftBorder, bottomBorder, rightBorder;
-							SDL_Window* window = SDL_GetWindowFromID( ev.window.windowID );
-							SDL_GetWindowBordersSize( window, &topBorder, &leftBorder, &bottomBorder, &rightBorder );
-							r_windowX.SetInteger( x - leftBorder );
-							r_windowY.SetInteger( y - topBorder );
+							// SRS - don't take window border into account when when saving window position cvars
+							//     - border policies are different across window managers and sdl2 vs. sdl2-compat
+							//     - window position may creep on restore, but too many differences so just *KISS*
+							r_windowX.SetInteger( x );
+							r_windowY.SetInteger( y );
 						}
 						break;
 					}
