@@ -1022,7 +1022,6 @@ bool DeviceManager_VK::createDevice()
 #endif
 							.setPNext( pNext );
 
-	auto layerVec = stringSetToVector( enabledExtensions.layers );
 	auto extVec = stringSetToVector( enabledExtensions.device );
 
 	auto deviceDesc = vk::DeviceCreateInfo()
@@ -1031,8 +1030,6 @@ bool DeviceManager_VK::createDevice()
 					  .setPEnabledFeatures( &deviceFeatures )
 					  .setEnabledExtensionCount( uint32_t( extVec.size() ) )
 					  .setPpEnabledExtensionNames( extVec.data() )
-					  .setEnabledLayerCount( uint32_t( layerVec.size() ) )
-					  .setPpEnabledLayerNames( layerVec.data() )
 					  .setPNext( &vulkan12features );
 
 	const vk::Result res = m_VulkanPhysicalDevice.createDevice( &deviceDesc, nullptr, &m_VulkanDevice );
