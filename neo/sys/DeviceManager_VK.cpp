@@ -232,10 +232,6 @@ private:
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-#if defined(__APPLE__) && defined( VK_KHR_portability_subset )
-			// SRS - This is required for using the MoltenVK portability subset implementation on macOS
-			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
-#endif
 		},
 	};
 
@@ -258,6 +254,10 @@ private:
 		{ },
 		// device
 		{
+#if defined(__APPLE__) && defined( VK_KHR_portability_subset )
+			// SRS - This is required for using the MoltenVK portability subset implementation on macOS
+			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
+#endif
 			VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
 			VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
 			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
@@ -543,7 +543,7 @@ bool DeviceManager_VK::createInstance()
 
 #if defined(__APPLE__)
 #if defined( VK_KHR_portability_enumeration )
-	if( enabledExtensions.instance.find( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME ) != enabledExtensions.instance.end() )
+	if( IsVulkanInstanceExtensionEnabled( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME ) )
 	{
 		info.setFlags( vk::InstanceCreateFlagBits( VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR ) );
 	}
@@ -557,59 +557,62 @@ bool DeviceManager_VK::createInstance()
 	const float timestampPeriodLowPassAlpha = 1.0;
 	const int32_t logLevelErrorsOnly = 1; // MVK_CONFIG_LOG_LEVEL_ERROR
 
-	// SRS - Use MoltenVK layer for configuration via standardized VK_EXT_layer_settings extension
-	vk::LayerSettingEXT layerSetting = { "MoltenVK", "", vk::LayerSettingTypeEXT( 0 ), 1, nullptr };
+	if( IsVulkanInstanceExtensionEnabled( VK_EXT_LAYER_SETTINGS_EXTENSION_NAME ) )
+	{
+		// SRS - Use MoltenVK layer for configuration via standardized VK_EXT_layer_settings extension
+		vk::LayerSettingEXT layerSetting = { "MoltenVK", "", vk::LayerSettingTypeEXT( 0 ), 1, nullptr };
 
-	// SRS - Set MoltenVK's synchronous queue submit option for vkQueueSubmit() & vkQueuePresentKHR()
-	layerSetting.pSettingName = "MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS";
-	layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
-	layerSetting.pValues = r_mvkSynchronousQueueSubmits.GetBool() ? &valueTrue : &valueFalse;
-	layerSettings.push_back( layerSetting );
+		// SRS - Set MoltenVK's synchronous queue submit option for vkQueueSubmit() & vkQueuePresentKHR()
+		layerSetting.pSettingName = "MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS";
+		layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
+		layerSetting.pValues = r_mvkSynchronousQueueSubmits.GetBool() ? &valueTrue : &valueFalse;
+		layerSettings.push_back( layerSetting );
 
-	// SRS - Enable MoltenVK's image view swizzle feature in case we don't have native image view swizzle
-	layerSetting.pSettingName = "MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE";
-	layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
-	layerSetting.pValues = &valueTrue;
-	layerSettings.push_back( layerSetting );
+		// SRS - Enable MoltenVK's image view swizzle feature in case we don't have native image view swizzle
+		layerSetting.pSettingName = "MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE";
+		layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
+		layerSetting.pValues = &valueTrue;
+		layerSettings.push_back( layerSetting );
 
-	// SRS - Set MoltenVK's Metal argument buffer option for controlling descriptor resource scaling
-	layerSetting.pSettingName = "MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS";
-	layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
-	layerSetting.pValues = r_mvkUseMetalArgumentBuffers.GetBool() ? &valueTrue : &valueFalse;
-	layerSettings.push_back( layerSetting );
+		// SRS - Set MoltenVK's Metal argument buffer option for controlling descriptor resource scaling
+		layerSetting.pSettingName = "MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS";
+		layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
+		layerSetting.pValues = r_mvkUseMetalArgumentBuffers.GetBool() ? &valueTrue : &valueFalse;
+		layerSettings.push_back( layerSetting );
 
-	// SRS - Set MoltenVK's MTLHeap option for GPU memory suballocations (may cause issues on AMD GPUs)
-	layerSetting.pSettingName = "MVK_CONFIG_USE_MTLHEAP";
-	layerSetting.type = vk::LayerSettingTypeEXT::eInt32;
-	layerSetting.pValues = &useMTLHeap;
-	layerSettings.push_back( layerSetting );
+		// SRS - Set MoltenVK's MTLHeap option for GPU memory suballocations (may cause issues on AMD GPUs)
+		layerSetting.pSettingName = "MVK_CONFIG_USE_MTLHEAP";
+		layerSetting.type = vk::LayerSettingTypeEXT::eInt32;
+		layerSetting.pValues = &useMTLHeap;
+		layerSettings.push_back( layerSetting );
 
-	// SRS - Disable MoltenVK's timestampPeriod filter for HUD / Optick profiler timing calibration
-	layerSetting.pSettingName = "MVK_CONFIG_TIMESTAMP_PERIOD_LOWPASS_ALPHA";
-	layerSetting.type = vk::LayerSettingTypeEXT::eFloat32;
-	layerSetting.pValues = &timestampPeriodLowPassAlpha;
-	layerSettings.push_back( layerSetting );
+		// SRS - Disable MoltenVK's timestampPeriod filter for HUD / Optick profiler timing calibration
+		layerSetting.pSettingName = "MVK_CONFIG_TIMESTAMP_PERIOD_LOWPASS_ALPHA";
+		layerSetting.type = vk::LayerSettingTypeEXT::eFloat32;
+		layerSetting.pValues = &timestampPeriodLowPassAlpha;
+		layerSettings.push_back( layerSetting );
 
 #if defined( USE_MoltenVK )
-	// SRS - Enable MoltenVK's performance tracking for display of Metal encoding timer on macOS
-	layerSetting.pSettingName = "MVK_CONFIG_PERFORMANCE_TRACKING";
-	layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
-	layerSetting.pValues = &valueTrue;
-	layerSettings.push_back( layerSetting );
+		// SRS - Enable MoltenVK's performance tracking for display of Metal encoding timer on macOS
+		layerSetting.pSettingName = "MVK_CONFIG_PERFORMANCE_TRACKING";
+		layerSetting.type = vk::LayerSettingTypeEXT::eBool32;
+		layerSetting.pValues = &valueTrue;
+		layerSettings.push_back( layerSetting );
 
 #if !defined( _DEBUG )
-	// SRS - Set MoltenVK's log level to "errors only" for release builds to avoid verbose messages
-	layerSetting.pSettingName = "MVK_CONFIG_LOG_LEVEL";
-	layerSetting.type = vk::LayerSettingTypeEXT::eInt32;
-	layerSetting.pValues = &logLevelErrorsOnly;
-	layerSettings.push_back( layerSetting );
+		// SRS - Set MoltenVK's log level to "errors only" for release builds to avoid verbose messages
+		layerSetting.pSettingName = "MVK_CONFIG_LOG_LEVEL";
+		layerSetting.type = vk::LayerSettingTypeEXT::eInt32;
+		layerSetting.pValues = &logLevelErrorsOnly;
+		layerSettings.push_back( layerSetting );
 #endif
 #endif
 
-	layerSettingsCreateInfo.settingCount = uint32_t( layerSettings.size() );
-	layerSettingsCreateInfo.pSettings = layerSettings.data();
+		layerSettingsCreateInfo.settingCount = uint32_t( layerSettings.size() );
+		layerSettingsCreateInfo.pSettings = layerSettings.data();
 
-	info.setPNext( &layerSettingsCreateInfo );
+		info.setPNext( &layerSettingsCreateInfo );
+	}
 #endif
 
 	const vk::Result res = vk::createInstance( &info, nullptr, &m_VulkanInstance );
@@ -976,6 +979,9 @@ bool DeviceManager_VK::createDevice()
 	auto sync2Features = vk::PhysicalDeviceSynchronization2FeaturesKHR()
 						 .setSynchronization2( true );
 
+	void* pNext = nullptr;
+
+#define APPEND_EXTENSION(condition, desc) if (condition) { (desc).pNext = pNext; pNext = &(desc); }  // NOLINT(cppcoreguidelines-macro-usage)
 #if defined(__APPLE__) && defined( VK_KHR_portability_subset )
 	auto portabilityFeatures = vk::PhysicalDevicePortabilitySubsetFeaturesKHR()
 #if USE_OPTICK
@@ -983,11 +989,8 @@ bool DeviceManager_VK::createDevice()
 #endif
 							   .setImageViewFormatSwizzle( true );
 
-	void* pNext = &portabilityFeatures;
-#else
-	void* pNext = nullptr;
+	APPEND_EXTENSION( IsVulkanDeviceExtensionEnabled( VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME ), portabilityFeatures )
 #endif
-#define APPEND_EXTENSION(condition, desc) if (condition) { (desc).pNext = pNext; pNext = &(desc); }  // NOLINT(cppcoreguidelines-macro-usage)
 	APPEND_EXTENSION( accelStructSupported, accelStructFeatures )
 	APPEND_EXTENSION( rayPipelineSupported, rayPipelineFeatures )
 	APPEND_EXTENSION( rayQuerySupported, rayQueryFeatures )
