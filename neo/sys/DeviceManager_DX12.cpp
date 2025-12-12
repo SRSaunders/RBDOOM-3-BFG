@@ -276,6 +276,9 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 		glConfig.vendor = getGPUVendor( aDesc.VendorId );
 		// SRS - Intel iGPUs typically allocate 128 MB for Dedicated UMA, set threshold at 512 MB to potentially handle other iGPUs (e.g. AMD APUs)
 		glConfig.gpuType = aDesc.DedicatedVideoMemory > 0x20000000 ? GPU_TYPE_DISCRETE : GPU_TYPE_OTHER;
+
+		// SRS - Set timestamp queries as always available on the DX12 device
+		glConfig.timerQueryAvailable = true;
 	}
 	/*
 		// SRS - Don't center window here for DX12 only, instead use portable initialization in CreateWindowDeviceAndSwapChain() within win_glimp.cpp

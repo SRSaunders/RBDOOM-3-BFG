@@ -1003,12 +1003,10 @@ bool DeviceManager_VK::createDevice()
 						  .setShaderImageGatherExtended( true )
 						  .setShaderStorageImageReadWithoutFormat( actualDeviceFeatures2.features.shaderStorageImageReadWithoutFormat )
 						  .setSamplerAnisotropy( true )
-						  .setTessellationShader( true )
+						  .setTessellationShader( actualDeviceFeatures2.features.tessellationShader )
 						  .setTextureCompressionBC( true )
-#if !defined(__APPLE__)
-						  .setGeometryShader( true )
-#endif
-						  .setFillModeNonSolid( true )
+						  .setGeometryShader( actualDeviceFeatures2.features.geometryShader )
+						  .setFillModeNonSolid( actualDeviceFeatures2.features.fillModeNonSolid )
 						  .setImageCubeArray( true )
 						  .setDualSrcBlend( true );
 
@@ -1078,6 +1076,11 @@ bool DeviceManager_VK::createDevice()
 	auto prop = m_VulkanPhysicalDevice.getProperties();
 	m_RendererString = std::string( prop.deviceName.data() );
 	m_DeviceApiVersion = prop.apiVersion;
+
+	// SRS - Check if timestamp queries are available on the Vulkan device and graphics queue
+	auto queueProp = m_VulkanPhysicalDevice.getQueueFamilyProperties();
+	glConfig.timerQueryAvailable = ( prop.limits.timestampPeriod > 0.0 ) &&
+								   ( prop.limits.timestampComputeAndGraphics || queueProp[ m_GraphicsQueueFamily ].timestampValidBits > 0 );
 
 #if defined( USE_AMD_ALLOCATOR )
 	// SRS - initialize the vma allocator
