@@ -2470,7 +2470,6 @@ idRenderBackend::idRenderBackend()
 	memset( &glConfig, 0, sizeof( glConfig ) );
 
 	glConfig.uniformBufferOffsetAlignment = 256;
-	glConfig.timerQueryAvailable = true;
 }
 
 /*
