@@ -113,10 +113,12 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 	globalFramebuffers.swapFramebuffers.Resize( backBufferCount );
 	globalFramebuffers.swapFramebuffers.SetNum( backBufferCount );
 
+	idStr fboName;
+
 	for( uint32_t index = 0; index < backBufferCount; index++ )
 	{
-		globalFramebuffers.swapFramebuffers[index] = new Framebuffer(
-			va( "_swapChain%d", index ),
+		sprintf( fboName, "_swapChain%d", index );
+		globalFramebuffers.swapFramebuffers[index] = new Framebuffer( fboName,
 			nvrhi::FramebufferDesc()
 			.addColorAttachment( deviceManager->GetBackBuffer( index ) ) );
 	}
@@ -125,7 +127,8 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 	{
 		for( int mip = 0; mip < MAX_SHADOWMAP_RESOLUTIONS; mip++ )
 		{
-			globalFramebuffers.shadowFBO[mip][arr] = new Framebuffer( va( "_shadowMap%i_%i", mip, arr ),
+			sprintf( fboName, "_shadowMap%i_%i", mip, arr );
+			globalFramebuffers.shadowFBO[mip][arr] = new Framebuffer( fboName,
 					nvrhi::FramebufferDesc().setDepthAttachment(
 						nvrhi::FramebufferAttachment()
 						.setTexture( globalImages->shadowImage[mip]->GetTextureHandle().Get() )
@@ -166,7 +169,8 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 
 	for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
 	{
-		globalFramebuffers.ambientOcclusionFBO[i] = new Framebuffer( va( "_aoRender%i", i ),
+		sprintf( fboName, "_aoRender%i", i );
+		globalFramebuffers.ambientOcclusionFBO[i] = new Framebuffer( fboName,
 				nvrhi::FramebufferDesc()
 				.addColorAttachment( globalImages->ambientOcclusionImage[i]->texture ) );
 	}
@@ -174,7 +178,8 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 	// HIERARCHICAL Z BUFFER
 	for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
 	{
-		globalFramebuffers.csDepthFBO[i] = new Framebuffer( va( "_csz%d", i ),
+		sprintf( fboName, "_csz%d", i );
+		globalFramebuffers.csDepthFBO[i] = new Framebuffer( fboName,
 				nvrhi::FramebufferDesc().addColorAttachment(
 					nvrhi::FramebufferAttachment()
 					.setTexture( globalImages->hierarchicalZbufferImage->texture )
@@ -200,7 +205,8 @@ void Framebuffer::ResizeFramebuffers( bool reloadImages )
 
 	for( int i = 0; i < MAX_BLOOM_BUFFERS; i++ )
 	{
-		globalFramebuffers.bloomRenderFBO[i] = new Framebuffer( va( "_bloomRender%i", i ),
+		sprintf( fboName, "_bloomRender%i", i );
+		globalFramebuffers.bloomRenderFBO[i] = new Framebuffer( fboName,
 				nvrhi::FramebufferDesc()
 				.addColorAttachment( globalImages->bloomRenderImage[i]->texture ) );
 	}
