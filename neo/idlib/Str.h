@@ -400,7 +400,9 @@ public:
 	static const int	INVALID_POSITION = -1;
 };
 
-char* 					va( VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
+// SRS - Converted previous va() definition to va_ptr() unique_ptr combined with va() macro to guarantee thread safety
+std::unique_ptr< const char[] > va_ptr( VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
+#define va( format, ... ) va_ptr( format, ##__VA_ARGS__ ).get()
 
 /*
 ================================================================================================

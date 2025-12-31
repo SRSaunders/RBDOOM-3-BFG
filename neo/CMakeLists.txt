@@ -1368,6 +1368,7 @@ else()
 	if(CMAKE_COMPILER_IS_GNUCC)
 		set_source_files_properties(
 				${OPTICK_SOURCES}
+				${CMAKE_CURRENT_SOURCE_DIR}/idlib/Str.h
 				PROPERTIES
 				COMPILE_FLAGS "-std=gnu++${CMAKE_CXX_STANDARD}"
 				)
