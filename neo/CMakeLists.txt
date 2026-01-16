@@ -541,6 +541,7 @@ endif()
 
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
+file(GLOB MINIZIP_C_SOURCES libs/zlib/minizip/*.c)
 
 set(SOUND_INCLUDES
 	sound/snd_local.h
@@ -1359,9 +1360,9 @@ else()
 	# SRS - disable certain gcc/clang warnings for select third-party source libraries, consider updating versions in the future?
 	set_source_files_properties(
 			${ZLIB_SOURCES}
-			${MINIZIP_SOURCES}
+			${MINIZIP_C_SOURCES}
 			PROPERTIES
-			COMPILE_FLAGS "-Wno-stringop-overread -Wno-deprecated-non-prototype"
+			COMPILE_FLAGS "-Wno-stringop-overread -Wno-deprecated-non-prototype -Wno-old-style-definition"
 			)
 		
 	# SRS - if using gcc compiler enable gnu extensions for ##__VA_ARGS__ support within optick profiler (i.e. __STRICT_ANSI__ not set)
