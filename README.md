@@ -53,10 +53,11 @@ I started this project in 2012 and focused on making this code being future proo
 * DX12 / Vulkan support through NVRHI (NVIDIA Rendering Hardware Interface) (thanks to Stephen Pridham for major porting effort)
 * Physically Based Rendering using GGX Cook-Torrence as in other modern engines (UE4, Unity) and 3D authoring tools like Blender 3.x or Adobe Substance
 * Baked Global Illumination using Irradiance Volumes and Image Based Lighting that fix the pitch black areas
+* Significantly improved performance with Intel's Masked Software Occlusion Culling (MOC) – hides non-visible objects more efficiently, perfectly 
 * Soft shadows using a fat shadow mapping atlas: 
 	* All 3 light types (point, spot, parallel/sun) are supported which means parallel lights (sun) use
-	scene independent cascaded shadow mapping.
-* True internal 64 bit HDR lighting with filmic ACES tone mapping and gamma-correct rendering in linear RGB space
+	scene independent cascaded shadow mapping.complementing the classic BSP portal culling method
+* Internal 64 bit HDR lighting with filmic ACES tone mapping and gamma-correct rendering in linear RGB space
 * SMAA and Temporal Antialiasing (TAA) as cheap alternatives for MSAA
 * Filmic post process effects like Chromatic Aberration and Dithering
 * Retro Rendering modes for the nostalgia of the 8-bit and 16-bit eras including the Commodore 64, Amstrad CPC 6128, Sega Genesis and Sony PSX
@@ -65,6 +66,7 @@ I started this project in 2012 and focused on making this code being future proo
 * Cinematic sequences can be skipped (thanks to Biel Bestué de Luna)
 * Netcode fixes to allow multiplayer sessions to friends with +connect <ip of friend> (manual port forwarding required)
 * Classic flashlight support
+* More realistic blood effects including Screen Space Reflections
 
 ## Programming and Code Quality
 * Flexible build system using CMake allowing to add optional features like FFmpeg for videos or OpenAL for sound
