@@ -354,10 +354,8 @@ else()
 
 		if(WIN32)
 			set(remove_command "del")
-			set(idlib_dir_slash "${CMAKE_SOURCE_DIR}\\idlib\\")
 		else()
 			set(remove_command "rm")
-			set(idlib_dir_slash "${CMAKE_SOURCE_DIR}/idlib/")
 		endif()
 
 		# SRS - delete precompiled header file after executable is compiled: command line build case
@@ -369,14 +367,13 @@ else()
 					)
 			add_dependencies(rm_precomp_header_rbdmap rbdmap)
 
-		# SRS - delete precompiled header files after executable is compiled: IDE build case (e.g. Xcode)
+		# SRS - delete precompiled header file after executable is compiled: IDE build case (e.g. Xcode)
 		else()
 			add_custom_command(TARGET rbdmap POST_BUILD
 					# SRS - added wildcards to remove tmp files from cmake ZERO_CHECK regeneration
-					COMMAND ${remove_command} "${idlib_dir_slash}precompiled.h*.gch*"
 					COMMAND ${remove_command} "precompiled.h*.gch*"
 					WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-					COMMENT "remove idlib/precompiled.h.gch and tools/compilers/precompiled.h.gch"
+					COMMENT "remove tools/compilers/precompiled.h.gch"
 			)
 		endif()
 	endif()
