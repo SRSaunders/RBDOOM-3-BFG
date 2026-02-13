@@ -202,12 +202,25 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     if(APPLE)
 		# SRS - CMAKE_OSX_SYSROOT and CMAKE_OSX_DEPLOYMENT_TARGET are now defined by macOS build scripts prior to execution of CMake's project() statement.
 		#       This approach supports CMake 4.0+ and earlier versions. Note -isysroot and -mmacosx-version-min still required for PCH command line builds.
-		if(USE_PRECOMPILED_HEADERS AND NOT CMAKE_GENERATOR MATCHES "Xcode")
-			if(CMAKE_OSX_SYSROOT)
-				add_compile_options(-isysroot ${CMAKE_OSX_SYSROOT})
-			endif()
-			if(CMAKE_OSX_DEPLOYMENT_TARGET)
-				add_compile_options(-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET})
+		if(USE_PRECOMPILED_HEADERS)
+			if(CMAKE_GENERATOR MATCHES "Xcode")
+				# avoid Xcode PCH redefinition warnings for clang's libc++ hardening mode available in Xcode 16.3+ / AppleClang 17+
+				# setting these values will ensure that libc++ hardening flags for PCH match Xcode's default libc++ hardening flags
+				# note: users can override these settings via CLANG_CXX_FLAGS_* in the cmake-xcode-*.sh shell scripts, for example:
+				#       -DCLANG_CXX_FLAGS_RELEASE="-U_LIBCPP_HARDENING_MODE -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST"
+				if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "17.0.0")
+					set(CLANG_CXX_FLAGS_DEBUG "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG ${CLANG_CXX_FLAGS_DEBUG}")
+					set(CLANG_CXX_FLAGS_RELEASE "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEFAULT ${CLANG_CXX_FLAGS_RELEASE}")
+					set(CLANG_CXX_FLAGS_RELWITHDEBINFO "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEFAULT ${CLANG_CXX_FLAGS_RELWITHDEBINFO}")
+					set(CLANG_CXX_FLAGS_MINSIZEREL "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEFAULT ${CLANG_CXX_FLAGS_MINSIZEREL}")
+				endif()
+			else()
+				if(CMAKE_OSX_SYSROOT)
+					add_compile_options(-isysroot ${CMAKE_OSX_SYSROOT})
+				endif()
+				if(CMAKE_OSX_DEPLOYMENT_TARGET)
+					add_compile_options(-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET})
+				endif()
 			endif()
 		endif()
 		# SRS - Also add -fasm-blocks otherwise Xcode complains and -Qunused-arguments to silence MMX/SSE unused arg warnings when compiling for Apple arm64
@@ -221,12 +234,12 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffp-contract=off -fomit-frame-pointer -fno-math-errno -fno-trapping-math")
 	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffp-contract=off -fomit-frame-pointer -fno-math-errno -fno-trapping-math")
 	
-	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CLANG_CXX_FLAGS_DEBUG}")
 	#set(CMAKE_CXX_FLAGS_DEBUGALL ${CMAKE_C_FLAGS_DEBUGALL})
 	#set(CMAKE_CXX_FLAGS_PROFILE ${CMAKE_C_FLAGS_PROFILE})
-	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
-	set(CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL})
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CLANG_CXX_FLAGS_RELEASE}")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CLANG_CXX_FLAGS_RELWITHDEBINFO}")
+	set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${CLANG_CXX_FLAGS_MINSIZEREL}")
 
 elseif(MSVC)
 	
