@@ -1123,14 +1123,11 @@ void DeviceManager_VK::destroySwapChain()
 		m_VulkanDevice.waitIdle();
 	}
 
-	for( int i = 0; i < m_SwapChainImages.size(); i++ )
-	{
-		m_VulkanDevice.destroySemaphore( m_PresentSemaphores[i] );
-	}
-	m_PresentSemaphores.clear();
-
 	while( !m_SwapChainImages.empty() )
 	{
+		m_VulkanDevice.destroySemaphore( m_PresentSemaphores.back() );
+		m_PresentSemaphores.pop_back();
+
 		auto sci = m_SwapChainImages.back();
 		m_SwapChainImages.pop_back();
 		sci.rhiHandle = nullptr;
@@ -1242,13 +1239,8 @@ bool DeviceManager_VK::createSwapChain()
 
 		sci.rhiHandle = m_NvrhiDevice->createHandleForNativeTexture( nvrhi::ObjectTypes::VK_Image, nvrhi::Object( sci.image ), textureDesc );
 		m_SwapChainImages.push_back( sci );
-	}
 
-	// SRS - Give each swapchain image its own addressable present semaphore to match image count and in case present order not sequential
-	m_PresentSemaphores.resize( m_SwapChainImages.size() );
-	for( int i = 0; i < m_SwapChainImages.size(); i++ )
-	{
-		m_PresentSemaphores[i] = m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() );
+		m_PresentSemaphores.push_back( m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() ) );
 	}
 
 	m_SwapChainIndex = 0;
