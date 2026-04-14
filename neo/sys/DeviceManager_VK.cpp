@@ -322,8 +322,8 @@ private:
 	nvrhi::DeviceHandle m_ValidationLayer;
 
 	//nvrhi::CommandListHandle m_BarrierCommandList;		// SRS - no longer needed
-	std::queue<vk::Semaphore> m_AcquireSemaphore;
-	std::vector<vk::Semaphore> m_PresentSemaphore;
+	std::queue<vk::Semaphore> m_AcquireSemaphores;
+	std::vector<vk::Semaphore> m_PresentSemaphores;
 
 	nvrhi::EventQueryHandle m_FrameWaitQuery;
 
@@ -1125,9 +1125,9 @@ void DeviceManager_VK::destroySwapChain()
 
 	for( int i = 0; i < m_SwapChainImages.size(); i++ )
 	{
-		m_VulkanDevice.destroySemaphore( m_PresentSemaphore[i] );
+		m_VulkanDevice.destroySemaphore( m_PresentSemaphores[i] );
 	}
-	m_PresentSemaphore.clear();
+	m_PresentSemaphores.clear();
 
 	while( !m_SwapChainImages.empty() )
 	{
@@ -1245,10 +1245,10 @@ bool DeviceManager_VK::createSwapChain()
 	}
 
 	// SRS - Give each swapchain image its own addressable present semaphore to match image count and in case present order not sequential
-	m_PresentSemaphore.resize( m_SwapChainImages.size() );
+	m_PresentSemaphores.resize( m_SwapChainImages.size() );
 	for( int i = 0; i < m_SwapChainImages.size(); i++ )
 	{
-		m_PresentSemaphore[i] = m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() );
+		m_PresentSemaphores[i] = m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() );
 	}
 
 	m_SwapChainIndex = 0;
@@ -1401,7 +1401,7 @@ bool DeviceManager_VK::CreateDeviceAndSwapChain()
 	// SRS - Give each frame-in-flight an image acquire semaphore in case of overlap due to async operations
 	for( int i = 0; i < NUM_FRAME_DATA; i++ )
 	{
-		m_AcquireSemaphore.push( m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() ) );
+		m_AcquireSemaphores.push( m_VulkanDevice.createSemaphore( vk::SemaphoreCreateInfo() ) );
 	}
 
 	m_FrameWaitQuery = m_NvrhiDevice->createEventQuery();
@@ -1431,8 +1431,8 @@ void DeviceManager_VK::DestroyDeviceAndSwapChain()
 
 	for( int i = 0; i < NUM_FRAME_DATA; i++ )
 	{
-		m_VulkanDevice.destroySemaphore( m_AcquireSemaphore.front() );
-		m_AcquireSemaphore.pop();
+		m_VulkanDevice.destroySemaphore( m_AcquireSemaphores.front() );
+		m_AcquireSemaphores.pop();
 	}
 
 	//m_BarrierCommandList = nullptr;		// SRS - no longer needed
@@ -1500,24 +1500,24 @@ void DeviceManager_VK::BeginFrame()
 
 	const vk::Result res = m_VulkanDevice.acquireNextImageKHR( m_SwapChain,
 						   std::numeric_limits<uint64_t>::max(), // timeout
-						   m_AcquireSemaphore.front(),
+						   m_AcquireSemaphores.front(),
 						   vk::Fence(),
 						   &m_SwapChainIndex );
 
 	assert( res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR );
 
-	m_NvrhiDevice->queueWaitForSemaphore( nvrhi::CommandQueue::Graphics, m_AcquireSemaphore.front(), 0 );
+	m_NvrhiDevice->queueWaitForSemaphore( nvrhi::CommandQueue::Graphics, m_AcquireSemaphores.front(), 0 );
 
 	// SRS - Cycle the acquire semaphore queue and setup for the next frame
-	m_AcquireSemaphore.push( m_AcquireSemaphore.front() );
-	m_AcquireSemaphore.pop();
+	m_AcquireSemaphores.push( m_AcquireSemaphores.front() );
+	m_AcquireSemaphores.pop();
 }
 
 void DeviceManager_VK::EndFrame()
 {
 	OPTICK_CATEGORY( "Vulkan_EndFrame", Optick::Category::Wait );
 
-	m_NvrhiDevice->queueSignalSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphore[ m_SwapChainIndex ], 0 );
+	m_NvrhiDevice->queueSignalSemaphore( nvrhi::CommandQueue::Graphics, m_PresentSemaphores[ m_SwapChainIndex ], 0 );
 
 	// SRS - Don't need barrier commandlist if EndFrame() is called before executeCommandList() in idRenderBackend::GL_EndFrame()
 	//m_BarrierCommandList->open(); // umm...
@@ -1555,7 +1555,7 @@ void DeviceManager_VK::Present()
 
 	vk::PresentInfoKHR info = vk::PresentInfoKHR()
 							  .setWaitSemaphoreCount( 1 )
-							  .setPWaitSemaphores( &m_PresentSemaphore[ m_SwapChainIndex ] )
+							  .setPWaitSemaphores( &m_PresentSemaphores[ m_SwapChainIndex ] )
 							  .setSwapchainCount( 1 )
 							  .setPSwapchains( &m_SwapChain )
 							  .setPImageIndices( &m_SwapChainIndex )
