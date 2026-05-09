@@ -446,9 +446,12 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf, bool sha
 	{
 		GetCurrentBindingLayout( bindingLayoutType );
 
+		bool uniformsLayoutChanged = prevBindingLayoutType >= 0 ? ( *layouts )[0] != ( *renderProgManager.GetBindingLayout( prevBindingLayoutType ) )[0] : true;
+
 		for( int i = 0; i < layouts->Num(); i++ )
 		{
-			if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[bindingLayoutType][i] || bindingLayoutType != prevBindingLayoutType )
+			// SRS - Update currentBindingSets[0] if uniforms binding layout has changed, can happen with push constants even if binding set descriptions match
+			if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[bindingLayoutType][i] || ( uniformsLayoutChanged && i == 0 ) )
 			{
 				currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[bindingLayoutType][i], ( *layouts )[i] );
 				changeState = true;
