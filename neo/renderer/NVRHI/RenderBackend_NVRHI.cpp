@@ -540,6 +540,11 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf, bool sha
 		commandList->setGraphicsState( state );
 
 		renderProgManager.CommitPushConstants( commandList, bindingLayoutType );
+
+		// keep track of last context to avoid setting up the binding layout and binding set again.
+		// SRS - Save context only if state actually changed - to keep currentBindingSets in sync
+		prevContext = context;
+		prevBindingLayoutType = bindingLayoutType;
 	}
 
 	//
@@ -550,10 +555,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf, bool sha
 	args.startIndexLocation = currentIndexOffset / sizeof( triIndex_t );
 	args.vertexCount = surf->numIndexes;
 	commandList->drawIndexed( args );
-
-	// keep track of last context to avoid setting up the binding layout and binding set again.
-	prevContext = context;
-	prevBindingLayoutType = bindingLayoutType;
 
 	if( shadowCounter )
 	{

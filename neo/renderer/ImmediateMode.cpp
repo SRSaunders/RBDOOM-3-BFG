@@ -189,6 +189,10 @@ void fhImmediateMode::End()
 		commandList->setGraphicsState( state );
 
 		renderProgManager.CommitPushConstants( commandList, bindingLayoutType );
+
+		// SRS - Save context so state change detection works properly in DrawElementsWithCounters()
+		backEnd.prevBindingLayoutType = bindingLayoutType;
+		backEnd.currentPipeline = pipeline;
 	}
 
 	nvrhi::DrawArguments args;
