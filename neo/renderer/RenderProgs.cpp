@@ -405,11 +405,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	{
 		// SRS - FIXME: Workaround - Disable push constants for select shaders to reduce GPU Timeout Errors (seen on Linux+AMD and macOS+AMD)
 		//     - Possibly due to exceeding push constant resource limits or perhaps a driver sync problem with AMD GPUs
-		//     - Note this may not be required on Windows Vulkan+AMD, but being conservative with no negative impact
+		//     - Note this may not be required on Windows Vulkan+AMD, but being conservative with minimal impact
 		layoutTypeAttributes[BINDING_LAYOUT_GBUFFER].pcEnabled = false;
-		layoutTypeAttributes[BINDING_LAYOUT_GBUFFER_SKINNED].pcEnabled = false;
 		layoutTypeAttributes[BINDING_LAYOUT_TEXTURE].pcEnabled = false;
-		layoutTypeAttributes[BINDING_LAYOUT_TEXTURE_SKINNED].pcEnabled = false;
+		layoutTypeAttributes[BINDING_LAYOUT_CONSTANT_BUFFER_ONLY].pcEnabled = false;
 	}
 
 	auto defaultLayoutDesc = nvrhi::BindingLayoutDesc()
