@@ -257,7 +257,9 @@ static void R_RGBA8LinearImage( idImage* image, nvrhi::ICommandList* commandList
 
 static void R_LdrNativeImage( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, nullptr, true, false, 1 );
+	uint sampleCount = R_GetMSAASamples();
+
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, nullptr, true, false, sampleCount );
 }
 
 static void R_DepthImage( idImage* image, nvrhi::ICommandList* commandList )
@@ -349,6 +351,11 @@ static void R_GeometryBufferImage_ResNative( idImage* image, nvrhi::ICommandList
 	uint sampleCount = R_GetMSAASamples();
 
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_RGBA16F, nullptr, true, false, sampleCount );
+}
+
+static void R_GeometryBufferImage_ResNative_Resolved( idImage* image, nvrhi::ICommandList* commandList )
+{
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_RGBA16F, nullptr, true );
 }
 
 static void R_SSAOImage_ResHalf( idImage* image, nvrhi::ICommandList* commandList )
@@ -1116,6 +1123,7 @@ void idImageManager::CreateIntrinsicImages()
 	smaaBlendImage = globalImages->ImageFromFunction( "_smaaBlend", R_SMAAImage_ResNative );
 
 	gbufferNormalsRoughnessImage = ImageFromFunction( "_currentNormals", R_GeometryBufferImage_ResNative );
+	gbufferNormalsRoughnessResolvedImage = ImageFromFunction( "_currentNormalsResolved", R_GeometryBufferImage_ResNative_Resolved );
 
 	ambientOcclusionImage[0] = ImageFromFunction( "_ao0", R_AmbientOcclusionImage_ResNative );
 	ambientOcclusionImage[1] = ImageFromFunction( "_ao1", R_AmbientOcclusionImage_ResNative );

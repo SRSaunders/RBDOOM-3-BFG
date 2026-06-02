@@ -480,7 +480,14 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 			globalImages->currentRenderImage->Bind();
 
 			GL_SelectTexture( 2 );
-			globalImages->gbufferNormalsRoughnessImage->Bind();
+			if( R_GetMSAASamples() > 1 )
+			{
+				globalImages->gbufferNormalsRoughnessResolvedImage->Bind();
+			}
+			else
+			{
+				globalImages->gbufferNormalsRoughnessImage->Bind();
+			}
 
 			GL_SelectTexture( 3 );
 			// use hierachical Z to avoid read & write at the same time on the depth buffer
@@ -2624,6 +2631,12 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	if( fillGbuffer )
 	{
+		if( R_GetMSAASamples() > 1 )
+		{
+			// SRS - resolve multisample normals to non-MSAA image needed for SSAO, ShaderPasses, and PostProcess
+			commandList->resolveTexture( globalImages->gbufferNormalsRoughnessResolvedImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(), nvrhi::AllSubresources );
+		}
+
 		// go back to main render target
 		if( previousFramebuffer != NULL )
 		{
@@ -4972,7 +4985,14 @@ void idRenderBackend::DrawMotionVectors()
 		globalImages->currentRenderHDRImage->Bind();
 
 		GL_SelectTexture( 1 );
-		globalImages->currentDepthImage->Bind();
+		if( R_UseHiZ() || R_GetMSAASamples() > 1 )
+		{
+			globalImages->hierarchicalZbufferImage->Bind();
+		}
+		else
+		{
+			globalImages->currentDepthImage->Bind();
+		}
 
 		DrawElementsWithCounters( &unitSquareSurface );
 	}
@@ -5163,8 +5183,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		return;
 	}
 
-	// FIXME: the hierarchical depth buffer does not work with the MSAA depth texture source
-	if( !r_useSSAO.GetBool() || R_GetMSAASamples() > 1 )
+	if( !r_useSSAO.GetBool() )
 	{
 		return;
 	}
@@ -5290,10 +5309,17 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 
 	GL_SelectTexture( 0 );
-	globalImages->gbufferNormalsRoughnessImage->Bind();
+	if( R_GetMSAASamples() > 1 )
+	{
+		globalImages->gbufferNormalsRoughnessResolvedImage->Bind();
+	}
+	else
+	{
+		globalImages->gbufferNormalsRoughnessImage->Bind();
+	}
 
 	GL_SelectTexture( 1 );
-	if( R_UseHiZ() )
+	if( R_UseHiZ() || R_GetMSAASamples() > 1 )
 	{
 		globalImages->hierarchicalZbufferImage->Bind();
 	}
@@ -5753,7 +5779,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	// build hierarchical depth buffer
 	//-------------------------------------------------
-	if( R_UseHiZ() && is3D )
+	if( is3D )
 	{
 		OPTICK_GPU_EVENT( "Render_HiZ" );
 		renderLog.OpenMainBlock( MRB_FILL_HIZ_BUFFER );
@@ -5767,7 +5793,10 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 			globalImages->currentDepthImage->GetTextureHandle(),
 			&bindingCache );
 
-		hiZGenPass->Dispatch( commandList, MAX_HIERARCHICAL_ZBUFFERS );
+		if( R_UseHiZ() )
+		{
+			hiZGenPass->Dispatch( commandList, MAX_HIERARCHICAL_ZBUFFERS );
+		}
 
 		renderLog.CloseBlock();
 		renderLog.CloseMainBlock();
@@ -6577,10 +6606,17 @@ void idRenderBackend::PostProcess( const void* data )
 		globalImages->blueNoiseImage256->Bind();
 
 		GL_SelectTexture( 2 );
-		globalImages->gbufferNormalsRoughnessImage->Bind();
+		if( R_GetMSAASamples() > 1 )
+		{
+			globalImages->gbufferNormalsRoughnessResolvedImage->Bind();
+		}
+		else
+		{
+			globalImages->gbufferNormalsRoughnessImage->Bind();
+		}
 
 		GL_SelectTexture( 3 );
-		if( R_UseHiZ() )
+		if( R_UseHiZ() || R_GetMSAASamples() > 1 )
 		{
 			globalImages->hierarchicalZbufferImage->Bind();
 		}

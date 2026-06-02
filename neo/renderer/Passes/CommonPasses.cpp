@@ -40,7 +40,9 @@ CommonRenderPasses::CommonRenderPasses()
 static bool IsSupportedBlitDimension( nvrhi::TextureDimension dimension )
 {
 	return dimension == nvrhi::TextureDimension::Texture2D
+		   || dimension == nvrhi::TextureDimension::Texture2DMS
 		   || dimension == nvrhi::TextureDimension::Texture2DArray
+		   || dimension == nvrhi::TextureDimension::Texture2DMSArray
 		   || dimension == nvrhi::TextureDimension::TextureCube
 		   || dimension == nvrhi::TextureDimension::TextureCubeArray;
 }
@@ -48,8 +50,16 @@ static bool IsSupportedBlitDimension( nvrhi::TextureDimension dimension )
 static bool IsTextureArray( nvrhi::TextureDimension dimension )
 {
 	return dimension == nvrhi::TextureDimension::Texture2DArray
+		   || dimension == nvrhi::TextureDimension::Texture2DMSArray
 		   || dimension == nvrhi::TextureDimension::TextureCube
 		   || dimension == nvrhi::TextureDimension::TextureCubeArray;
+}
+
+static bool IsDepthFormat( nvrhi::Format format )
+{
+	return format == nvrhi::Format::D24S8
+		   || format == nvrhi::Format::D32S8
+		   || format == nvrhi::Format::D32;
 }
 
 void CommonRenderPasses::Init( nvrhi::IDevice* device )
@@ -63,10 +73,22 @@ void CommonRenderPasses::Init( nvrhi::IDevice* device )
 	shaderMacros.Append( shaderMacro_t( "TEXTURE_ARRAY", "0" ) );
 	int blitIndex = renderProgManager.FindShader( "builtin/blit", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
 	m_BlitPS = renderProgManager.GetShader( blitIndex );
+	blitIndex = renderProgManager.FindShader( "builtin/blitdepth", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
+	m_BlitDepthPS = renderProgManager.GetShader( blitIndex );
+	blitIndex = renderProgManager.FindShader( "builtin/blitmsresolve", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
+	m_BlitMSPS = renderProgManager.GetShader( blitIndex );
+	blitIndex = renderProgManager.FindShader( "builtin/blitdepthmsresolve", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
+	m_BlitDepthMSPS = renderProgManager.GetShader( blitIndex );
 
 	shaderMacros[0].definition = "1";
 	blitIndex = renderProgManager.FindShader( "builtin/blit", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
 	m_BlitArrayPS = renderProgManager.GetShader( blitIndex );
+	blitIndex = renderProgManager.FindShader( "builtin/blitdepth", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
+	m_BlitDepthArrayPS = renderProgManager.GetShader( blitIndex );
+	blitIndex = renderProgManager.FindShader( "builtin/blitmsresolve", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
+	m_BlitMSArrayPS = renderProgManager.GetShader( blitIndex );
+	blitIndex = renderProgManager.FindShader( "builtin/blitdepthmsresolve", SHADER_STAGE_FRAGMENT, "", shaderMacros, true, LAYOUT_DRAW_VERT );
+	m_BlitDepthMSArrayPS = renderProgManager.GetShader( blitIndex );
 
 	auto samplerDesc = nvrhi::SamplerDesc()
 					   .setAllFilters( false )
@@ -189,6 +211,12 @@ void CommonRenderPasses::Shutdown()
 	m_RectVS = nullptr;
 	m_BlitPS = nullptr;
 	m_BlitArrayPS = nullptr;
+	m_BlitDepthPS = nullptr;
+	m_BlitDepthArrayPS = nullptr;
+	m_BlitMSPS = nullptr;
+	m_BlitMSArrayPS = nullptr;
+	m_BlitDepthMSPS = nullptr;
+	m_BlitDepthMSArrayPS = nullptr;
 	m_SharpenPS = nullptr;
 	m_SharpenArrayPS = nullptr;
 
@@ -229,6 +257,8 @@ void CommonRenderPasses::BlitTexture( nvrhi::ICommandList* commandList, const Bl
 	const nvrhi::TextureDesc& sourceDesc = params.sourceTexture->getDesc();
 
 	assert( IsSupportedBlitDimension( sourceDesc.dimension ) );
+	bool isMultiSampled = sourceDesc.sampleCount > 1;
+	bool isDepthFormat = IsDepthFormat( sourceDesc.format );
 	bool isTextureArray = IsTextureArray( sourceDesc.dimension );
 
 	nvrhi::Viewport targetViewport = params.targetViewport;
@@ -240,17 +270,38 @@ void CommonRenderPasses::BlitTexture( nvrhi::ICommandList* commandList, const Bl
 	}
 
 	nvrhi::IShader* shader = nullptr;
-	switch( params.sampler )
+	if( isMultiSampled )
 	{
-		case BlitSampler::Point:
-		case BlitSampler::Linear:
-			shader = isTextureArray ? m_BlitArrayPS : m_BlitPS;
-			break;
-		case BlitSampler::Sharpen:
-			shader = isTextureArray ? m_SharpenArrayPS : m_SharpenPS;
-			break;
-		default:
-			assert( false );
+		if( isDepthFormat )
+		{
+			shader = isTextureArray ? m_BlitDepthMSArrayPS : m_BlitDepthMSPS;
+		}
+		else
+		{
+			shader = isTextureArray ? m_BlitMSArrayPS : m_BlitMSPS;
+		}
+	}
+	else
+	{
+		if( isDepthFormat )
+		{
+			shader = isTextureArray ? m_BlitDepthArrayPS : m_BlitDepthPS;
+		}
+		else
+		{
+			switch( params.sampler )
+			{
+				case BlitSampler::Point:
+				case BlitSampler::Linear:
+					shader = isTextureArray ? m_BlitArrayPS : m_BlitPS;
+					break;
+				case BlitSampler::Sharpen:
+					shader = isTextureArray ? m_SharpenArrayPS : m_SharpenPS;
+					break;
+				default:
+					assert( false );
+			}
+		}
 	}
 
 	nvrhi::GraphicsPipelineHandle& pso = m_BlitPsoCache[PsoCacheKey{ fbinfo, shader, params.blendState }];

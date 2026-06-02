@@ -110,6 +110,12 @@ public:
 	nvrhi::ShaderHandle m_RectVS;
 	nvrhi::ShaderHandle m_BlitPS;
 	nvrhi::ShaderHandle m_BlitArrayPS;
+	nvrhi::ShaderHandle m_BlitDepthPS;
+	nvrhi::ShaderHandle m_BlitDepthArrayPS;
+	nvrhi::ShaderHandle m_BlitMSPS;
+	nvrhi::ShaderHandle m_BlitMSArrayPS;
+	nvrhi::ShaderHandle m_BlitDepthMSPS;
+	nvrhi::ShaderHandle m_BlitDepthMSArrayPS;
 	nvrhi::ShaderHandle m_SharpenPS;
 	nvrhi::ShaderHandle m_SharpenArrayPS;
 

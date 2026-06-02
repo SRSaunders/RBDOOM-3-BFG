@@ -2004,11 +2004,23 @@ void idRenderBackend::GL_StartFrame()
 
 	if( !ssaoPass && r_useNewSsaoPass.GetBool() )
 	{
-		ssaoPass = new SsaoPass(
-			deviceManager->GetDevice(),
-			&commonPasses, globalImages->currentDepthImage->GetTextureHandle(),
-			globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(),
-			globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
+		if( R_GetMSAASamples() > 1 )
+		{
+			// SRS - use HiZ depth and normals resolved images here since they are multi-sample resolved
+			ssaoPass = new SsaoPass(
+				deviceManager->GetDevice(),
+				&commonPasses, globalImages->hierarchicalZbufferImage->GetTextureHandle(),
+				globalImages->gbufferNormalsRoughnessResolvedImage->GetTextureHandle(),
+				globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
+		}
+		else
+		{
+			ssaoPass = new SsaoPass(
+				deviceManager->GetDevice(),
+				&commonPasses, globalImages->currentDepthImage->GetTextureHandle(),
+				globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(),
+				globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
+		}
 	}
 
 	if( ( globalImages->hierarchicalZbufferImage->GetTextureID() != textureId || !hiZGenPass ) && R_UseHiZ() )
@@ -2311,6 +2323,13 @@ void idRenderBackend::CheckCVars()
 	{
 		r_swapInterval.ClearModified();
 		deviceManager->SetVsyncEnabled( r_swapInterval.GetInteger() );
+	}
+
+	// SRS - support dynamic changes to anti-aliasing setting from console and system options menu
+	if( r_antiAliasing.IsModified() )
+	{
+		r_antiAliasing.ClearModified();
+		glConfig.multisamples = R_GetMSAASamples();
 	}
 
 	// retro rendering

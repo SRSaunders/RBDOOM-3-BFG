@@ -91,10 +91,10 @@ void TemporalAntiAliasingPass::Init(
 	// determine if push constants can be used (with various cases below)
 	size_t pcSize = sizeof( TemporalAntiAliasingConstants );
 
-	//switch( r_antiAliasing.GetInteger() )
+	switch( r_antiAliasing.GetInteger() )
 	{
 #if ID_MSAA
-	case ANTI_ALIASING_MSAA_2X:
+		case ANTI_ALIASING_MSAA_2X:
 		{
 			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_2X );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
@@ -102,9 +102,17 @@ void TemporalAntiAliasingPass::Init(
 			break;
 		}
 
-	case ANTI_ALIASING_MSAA_4X:
+		case ANTI_ALIASING_MSAA_4X:
 		{
 			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_4X );
+			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
+			pcEnabled = taaResolveShaderInfo.usesPushConstants;
+			break;
+		}
+
+		case ANTI_ALIASING_MSAA_8X:
+		{
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_8X );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			pcEnabled = taaResolveShaderInfo.usesPushConstants;
 			break;
@@ -114,12 +122,12 @@ void TemporalAntiAliasingPass::Init(
 #pragma warning( disable : 4065 )	// C4065: switch statement contains 'default' but no 'case'
 #endif
 
-		//default:
+		default:
 		{
 			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE );
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			pcEnabled = taaResolveShaderInfo.usesPushConstants;
-			//break;
+			break;
 		}
 	}
 #if !ID_MSAA && defined( _MSC_VER )

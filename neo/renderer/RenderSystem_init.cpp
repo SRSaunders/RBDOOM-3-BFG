@@ -80,7 +80,7 @@ idCVar r_useValidationLayers( "r_useValidationLayers", "1", CVAR_INTEGER | CVAR_
 
 // RB: disabled 16x MSAA
 #if ID_MSAA
-	idCVar r_antiAliasing( "r_antiAliasing", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER | CVAR_NEW, " 0 = None\n 1 = TAA 1x\n 2 = TAA + SMAA 1x\n 3 = MSAA 2x\n 4 = MSAA 4x\n", 0, ANTI_ALIASING_MSAA_4X );
+	idCVar r_antiAliasing( "r_antiAliasing", "2", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER | CVAR_NEW, " 0 = None\n 1 = SMAA 1x\n 2 = TAA\n 3 = MSAA 2x\n 4 = MSAA 4x\n 5 = MSAA 8x\n", 0, ANTI_ALIASING_MSAA_8X );
 #else
 	idCVar r_antiAliasing( "r_antiAliasing", "2", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER | CVAR_NEW, " 0 = None\n 1 = SMAA 1x\n 2 = TAA", 0, ANTI_ALIASING_TAA );
 #endif
@@ -350,11 +350,6 @@ bool R_UseTemporalAA()
 		case ANTI_ALIASING_TAA:
 			return true;
 
-#if ID_MSAA
-		case ANTI_ALIASING_TAA_SMAA_1X:
-			return true;
-#endif
-
 		default:
 			return false;
 	}
@@ -383,6 +378,9 @@ uint R_GetMSAASamples()
 
 		case ANTI_ALIASING_MSAA_4X:
 			return 4;
+
+		case ANTI_ALIASING_MSAA_8X:
+			return 8;
 
 		default:
 			return 1;
@@ -478,27 +476,7 @@ void R_SetNewMode( const bool fullInit )
 			}
 		}
 
-		switch( r_antiAliasing.GetInteger() )
-		{
-#if ID_MSAA
-			case ANTI_ALIASING_MSAA_2X:
-				parms.multiSamples = 2;
-				break;
-			case ANTI_ALIASING_MSAA_4X:
-				parms.multiSamples = 4;
-				break;
-#elif defined( _MSC_VER )			// SRS: #pragma warning is MSVC specific
-#pragma warning( push )
-#pragma warning( disable : 4065 )	// C4065: switch statement contains 'default' but no 'case'
-#endif
-
-			default:
-				parms.multiSamples = 1;
-				break;
-		}
-#if !ID_MSAA && defined( _MSC_VER )
-#pragma warning( pop )
-#endif
+		parms.multiSamples = R_GetMSAASamples();
 
 		if( fullInit )
 		{

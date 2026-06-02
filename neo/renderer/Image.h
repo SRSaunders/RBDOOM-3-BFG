@@ -618,8 +618,9 @@ public:
 	idImage*			smaaEdgesImage;
 	idImage*			smaaBlendImage;
 	idImage*			gbufferNormalsRoughnessImage;	// cheap G-Buffer replacement, holds normals and surface roughness
+	idImage*			gbufferNormalsRoughnessResolvedImage;	// non-MSAA normals used for SSAO, ShaderPasses, and PostProcess
 	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
-	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
+	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps for SSAO and to accelerate screen space ray tracing
 	idImage*			imguiFontImage;
 
 	idImage* 			chromeSpecImage;				// only for the PBR color checker chart

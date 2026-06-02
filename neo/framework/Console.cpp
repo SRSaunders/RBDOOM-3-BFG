@@ -389,30 +389,30 @@ float idConsoleLocal::DrawFPS( float y )
 
 		const char* API = gfxValues[ int( deviceManager->GetGraphicsAPI() ) ];
 
-		extern idCVar r_antiAliasing;
-
 #if ID_MSAA
-		static const int aaNumValues = 5;
+		static const int aaNumValues = 6;
 
 		static const char* aaValues[aaNumValues] =
 		{
 			"None",
+			"SMAA",
 			"None",
-			"SMAA 1X",
 			"MSAA 2X",
 			"MSAA 4X",
+			"MSAA 8X",
 		};
 
 		static const char* taaValues[aaNumValues] =
 		{
 			"None",
+			"SMAA",
 			"TAA",
-			"TAA + SMAA 1X",
 			"MSAA 2X",
 			"MSAA 4X",
+			"MSAA 8X",
 		};
 
-		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_4X + 1 ) );
+		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
 #else
 		static const int aaNumValues = 3;
 

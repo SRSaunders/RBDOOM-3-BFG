@@ -937,6 +937,9 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 		// SP begin
 		{ BUILTIN_BLIT, "builtin/blit", "", { { "TEXTURE_ARRAY", "0" } }, false, SHADER_STAGE_FRAGMENT, LAYOUT_UNKNOWN, BINDING_LAYOUT_BLIT },
+		{ BUILTIN_BLIT_DEPTH, "builtin/blitdepth", "", { { "TEXTURE_ARRAY", "0" } }, false, SHADER_STAGE_FRAGMENT, LAYOUT_UNKNOWN, BINDING_LAYOUT_BLIT },
+		{ BUILTIN_BLIT_MSRESOLVE, "builtin/blitmsresolve", "", { { "TEXTURE_ARRAY", "0" } }, false, SHADER_STAGE_FRAGMENT, LAYOUT_UNKNOWN, BINDING_LAYOUT_BLIT },
+		{ BUILTIN_BLIT_DEPTH_MSRESOLVE, "builtin/blitdepthmsresolve", "", { { "TEXTURE_ARRAY", "0" } }, false, SHADER_STAGE_FRAGMENT, LAYOUT_UNKNOWN, BINDING_LAYOUT_BLIT },
 		{ BUILTIN_RECT, "builtin/rect", "", { }, false, SHADER_STAGE_VERTEX, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLIT },
 
 		{ BUILTIN_MIPMAPGEN_CS, "builtin/mipmapgen", "", { { "MODE", std::to_string( MipMapGenPass::Mode::MODE_MAX ).c_str() }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_MIPMAPGEN ) } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_MIPMAPGEN },

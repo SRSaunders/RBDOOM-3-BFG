@@ -90,7 +90,7 @@ enum graphicsGpuType_t
 	GPU_TYPE_OTHER
 };
 
-#define ID_MSAA 0
+#define ID_MSAA 1
 
 enum antiAliasingMode_t
 {
@@ -99,9 +99,9 @@ enum antiAliasingMode_t
 	ANTI_ALIASING_TAA,
 
 #if ID_MSAA
-	ANTI_ALIASING_TAA_SMAA_1X,
 	ANTI_ALIASING_MSAA_2X,
 	ANTI_ALIASING_MSAA_4X,
+	ANTI_ALIASING_MSAA_8X,
 #endif
 };
 
