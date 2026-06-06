@@ -907,7 +907,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "builtin/post/SMAA_final", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_POST_PROCESS_FINAL ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
 
 		// SRS - changed from BUILTIN_MOTION_BLUR to BUILTIN_TAA_MOTION_VECTORS
-		{ BUILTIN_TAA_MOTION_VECTORS, "builtin/post/motionBlur", "_vectors", { { "VECTORS_ONLY", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
+		{ BUILTIN_TAA_MOTION_VECTORS, "builtin/post/motionBlur", "_vectors", { { "SAMPLE_COUNT", "1" }, { "VECTORS_ONLY", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
+		{ BUILTIN_TAA_MOTION_VECTORS_MSAA, "builtin/post/motionBlur", "_vectors_msaa", { { "SAMPLE_COUNT", "2" }, { "VECTORS_ONLY", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
 
 		// RB: without access to the renderpass code itself we don't know wether we need the push constants or constant buffer versions
 		{ BUILTIN_TAA_RESOLVE, "builtin/post/taa", "", { { "SAMPLE_COUNT", "1" }, { "USE_CATMULL_ROM_FILTER", "1" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_RESOLVE ) } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
@@ -931,7 +932,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		{ BUILTIN_STEREO_INTERLACE, "builtin/VR/stereoInterlace", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_DEFAULT ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 
 		// SRS - disabled VECTORS_ONLY now that BUILTIN_TAA_MOTION_VECTORS is properly defined
-		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "", { { "VECTORS_ONLY", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
+		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "", { { "SAMPLE_COUNT", "1" }, { "VECTORS_ONLY", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
+		{ BUILTIN_MOTION_BLUR_MSAA, "builtin/post/motionBlur", "_msaa", { { "SAMPLE_COUNT", "2" }, { "VECTORS_ONLY", "0" }, { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TAA_MOTION_VECTORS ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
 
 		{ BUILTIN_DEBUG_SHADOWMAP, "builtin/debug/debug_shadowmap", "", { { "USE_PUSH_CONSTANTS", usePushConstants( BINDING_LAYOUT_TEXGEN ) } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TEXGEN },
 

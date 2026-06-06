@@ -279,7 +279,9 @@ static void R_HDR_RGBA16FImage_ResNative_MSAAOpt( idImage* image, nvrhi::IComman
 
 static void R_HDR_RG16FImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RG16F, nullptr, true );
+	uint sampleCount = R_GetMSAASamples();
+
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RG16F, nullptr, true, false, sampleCount );
 }
 
 static void R_HDR_RGBA16FImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )

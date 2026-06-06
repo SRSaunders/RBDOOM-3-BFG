@@ -2006,7 +2006,7 @@ void idRenderBackend::GL_StartFrame()
 	{
 		if( R_GetMSAASamples() > 1 )
 		{
-			// SRS - use HiZ depth and normals resolved images here since they are multi-sample resolved
+			// SRS - use HiZ depth (mip 0) and normals resolved images since they are both non multi-sample for SSAO input
 			ssaoPass = new SsaoPass(
 				deviceManager->GetDevice(),
 				&commonPasses, globalImages->hierarchicalZbufferImage->GetTextureHandle(),
