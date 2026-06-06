@@ -33,7 +33,15 @@ If you have questions concerning this license or the applicable additional terms
 
 // *INDENT-OFF*
 
+#ifndef SAMPLE_COUNT
+	#define SAMPLE_COUNT 1
+#endif
+
+#if SAMPLE_COUNT == 1
 Texture2D t_ViewColor : register( t0 VK_DESCRIPTOR_SET( 0 ) );
+#else
+Texture2DMS<float4> t_ViewColor : register( t0 VK_DESCRIPTOR_SET( 0 ) );
+#endif
 Texture2D t_ViewDepth : register( t1 VK_DESCRIPTOR_SET( 0 ) );
 
 SamplerState LinearSampler : register( s0 VK_DESCRIPTOR_SET( 1 ) );
@@ -62,8 +70,24 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 #endif
 
+#if SAMPLE_COUNT == 1
 	// don't motion blur the hands, which were drawn with alpha = 0
 	if( t_ViewColor.Sample( LinearSampler, fragment.texcoord0 ).a == 0.0 )
+#else
+	uint width, height, sampleCount;
+	t_ViewColor.GetDimensions( width, height, sampleCount );
+	int2 colorCoord = int2( fragment.texcoord0.x * width, fragment.texcoord0.y * height );
+
+	float4 combinedColor = float4( 0, 0, 0, 0 );
+	[loop]
+	for( uint i = 0; i < sampleCount; ++i )
+	{
+		combinedColor += t_ViewColor.Load( colorCoord, i );
+	}
+
+	// don't motion blur the hands, which were drawn with alpha = 0
+	if( combinedColor.a == 0.0 )
+#endif
 	{
 		discard;
 		return;
@@ -116,7 +140,18 @@ void main( PS_IN fragment, out PS_OUT result )
 	for( float i = 0.0 ; i < samples ; i = i + 1.0 )
 	{
 		float2 pos = fragment.texcoord0 + delta * ( ( i / ( samples - 1.0 ) ) - 0.5 );
+#if SAMPLE_COUNT == 1
 		float4 color = t_ViewColor.Sample( LinearSampler, pos );
+#else
+		combinedColor = float4( 0, 0, 0, 0 );
+		int2 colorCoord = int2( pos.x * width, pos.y * height );
+		[loop]
+		for( uint i = 0; i < sampleCount; ++i )
+		{
+			combinedColor += t_ViewColor.Load( colorCoord, i );
+		}
+		float4 color = combinedColor / float(sampleCount);
+#endif
 		// only take the values that are not part of the weapon
 		sum += color.xyz * color.w;
 		goodSamples += color.w;

@@ -495,6 +495,7 @@ enum
 	BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
 
 	BUILTIN_TAA_MOTION_VECTORS,
+	BUILTIN_TAA_MOTION_VECTORS_MSAA,
 	BUILTIN_TAA_RESOLVE,
 	BUILTIN_TAA_RESOLVE_MSAA_2X,
 	BUILTIN_TAA_RESOLVE_MSAA_4X,
@@ -516,6 +517,7 @@ enum
 	BUILTIN_BINK_GUI,
 	BUILTIN_STEREO_INTERLACE,
 	BUILTIN_MOTION_BLUR,
+	BUILTIN_MOTION_BLUR_MSAA,
 
 	BUILTIN_DEBUG_SHADOWMAP,
 
@@ -1100,9 +1102,19 @@ public:
 		BindShader_Builtin( BUILTIN_MOTION_BLUR );
 	}
 
+	void	BindShader_MotionBlur_MSAA()
+	{
+		BindShader_Builtin( BUILTIN_MOTION_BLUR_MSAA );
+	}
+
 	void	BindShader_MotionVectors()
 	{
 		BindShader_Builtin( BUILTIN_TAA_MOTION_VECTORS );
+	}
+
+	void	BindShader_MotionVectors_MSAA()
+	{
+		BindShader_Builtin( BUILTIN_TAA_MOTION_VECTORS_MSAA );
 	}
 
 	void	BindShader_DebugShadowMap()

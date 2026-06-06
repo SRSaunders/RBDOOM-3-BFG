@@ -4979,7 +4979,14 @@ void idRenderBackend::DrawMotionVectors()
 
 		GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
 
-		renderProgManager.BindShader_MotionVectors();
+		if( R_GetMSAASamples() > 1 )
+		{
+			renderProgManager.BindShader_MotionVectors_MSAA();
+		}
+		else
+		{
+			renderProgManager.BindShader_MotionVectors();
+		}
 
 		GL_SelectTexture( 0 );
 		globalImages->currentRenderHDRImage->Bind();
