@@ -363,6 +363,26 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 			 IID_PPV_ARGS( &m_Device12 ) );
 	HR_RETURN( hr );
 
+	// SRS - Determine the maximum MSAA sample count available for the DX12 device
+	glConfig.maxSampleCountAvailable = 1;
+
+	std::vector<UINT> testSampleCounts = { 8, 4, 2 };
+	for( UINT sampleCount : testSampleCounts )
+	{
+		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msLevels = {};
+		msLevels.Format = m_SwapChainDesc.Format;
+		msLevels.SampleCount = sampleCount;
+		msLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+
+		HRESULT hr = m_Device12->CheckFeatureSupport( D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof( msLevels ) );
+
+		if( SUCCEEDED( hr ) && msLevels.NumQualityLevels > 0 )
+		{
+			glConfig.maxSampleCountAvailable = sampleCount;
+			break;
+		}
+	}
+
 	if( m_DeviceParams.enableDebugRuntime )
 	{
 		RefCountPtr<ID3D12InfoQueue> pInfoQueue;

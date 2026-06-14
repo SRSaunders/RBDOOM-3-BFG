@@ -1079,6 +1079,25 @@ bool DeviceManager_VK::createDevice()
 	glConfig.timerQueryAvailable = ( prop.limits.timestampPeriod > 0.0 ) &&
 								   ( prop.limits.timestampComputeAndGraphics || queueProp[ m_GraphicsQueueFamily ].timestampValidBits > 0 );
 
+	// SRS - Determine the maximum MSAA sample count available for the Vulkan device
+	auto sampleCountFlags = prop.limits.framebufferColorSampleCounts & prop.limits.framebufferDepthSampleCounts;
+	if ( sampleCountFlags & vk::SampleCountFlagBits::e8 )
+	{
+		glConfig.maxSampleCountAvailable = 8;
+	}
+	else if( sampleCountFlags & vk::SampleCountFlagBits::e4 )
+	{
+		glConfig.maxSampleCountAvailable = 4;
+	}
+	else if( sampleCountFlags & vk::SampleCountFlagBits::e2 )
+	{
+		glConfig.maxSampleCountAvailable = 2;
+	}
+	else
+	{
+		glConfig.maxSampleCountAvailable = 1;
+	}
+
 #if defined( USE_AMD_ALLOCATOR )
 	// SRS - initialize the vma allocator
 	VmaVulkanFunctions vulkanFunctions = {};

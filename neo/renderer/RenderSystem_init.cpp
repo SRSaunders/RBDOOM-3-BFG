@@ -374,13 +374,13 @@ uint R_GetMSAASamples()
 	switch( r_antiAliasing.GetInteger() )
 	{
 		case ANTI_ALIASING_MSAA_2X:
-			return 2;
+			return Min( uint( 2 ), glConfig.maxSampleCountAvailable );
 
 		case ANTI_ALIASING_MSAA_4X:
-			return 4;
+			return Min( uint( 4 ), glConfig.maxSampleCountAvailable );
 
 		case ANTI_ALIASING_MSAA_8X:
-			return 8;
+			return Min( uint( 8 ), glConfig.maxSampleCountAvailable );
 
 		default:
 			return 1;

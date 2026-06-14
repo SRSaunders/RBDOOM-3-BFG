@@ -604,6 +604,9 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			};
 
 			compile_time_assert( numValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+
+			// SRS - Dynamically adjust MSAA menu options based on the maximum sample count available in the implementation
+			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues - 3 + Min( int( log2( glConfig.maxSampleCountAvailable ) ), 3 ), adjustAmount ) );
 #else
 			static const int numValues = 3;
 			static const int values[numValues] =
@@ -614,9 +617,9 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			};
 
 			compile_time_assert( numValues == ( ANTI_ALIASING_TAA + 1 ) );
-#endif
 
 			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues, adjustAmount ) );
+#endif
 			break;
 		}
 		// RB begin
