@@ -565,13 +565,6 @@ void idImage::AllocImage()
 			textureDesc.setInitialState( nvrhi::ResourceStates::DepthWrite )
 			.setClearValue( nvrhi::Color( 1.f ) );
 		}
-
-		if( opts.isUAV )
-		{
-			// TODO(Stephen): Probably make this an image option.
-			// This is a hack to make cszBuffer and ambient occlusion uav work.
-			textureDesc.setIsUAV( true );
-		}
 	}
 
 	if( opts.textureType == DTT_2D )
