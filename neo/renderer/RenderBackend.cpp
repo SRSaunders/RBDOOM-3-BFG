@@ -5862,23 +5862,15 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	{
 		OPTICK_GPU_EVENT( "Resolve_Screen4SSR" );
 
-		if( R_GetMSAASamples() > 1 )
-		{
-			renderLog.OpenBlock( "Resolve to _currentRender" );
+		// SRS - BlitTexture() can now resolve multi-sample images when required
+		renderLog.OpenBlock( "Blit to _currentRender" );
 
-			commandList->resolveTexture( globalImages->currentRenderImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->currentRenderHDRImage->GetTextureHandle(), nvrhi::AllSubresources );
-		}
-		else
-		{
-			renderLog.OpenBlock( "Blit to _currentRender" );
-
-			BlitParameters blitParms;
-			nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
-			blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
-			blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject(); // _currentRender image
-			blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
-			commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
-		}
+		BlitParameters blitParms;
+		nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
+		blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
+		blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject(); // _currentRender image
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
 		renderLog.CloseBlock();
 	}
@@ -5933,24 +5925,15 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 		GL_SelectTexture( 0 );
 
-		// resolve the screen
-		if( R_GetMSAASamples() > 1 )
-		{
-			renderLog.OpenBlock( "Resolve to _currentRender" );
+		// SRS - BlitTexture() can now resolve multi-sample images when required
+		renderLog.OpenBlock( "Blit to _currentRender" );
 
-			commandList->resolveTexture( globalImages->currentRenderImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->currentRenderHDRImage->GetTextureHandle(), nvrhi::AllSubresources );
-		}
-		else
-		{
-			renderLog.OpenBlock( "Blit to _currentRender" );
-
-			BlitParameters blitParms;
-			nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
-			blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
-			blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject(); // _currentRender image
-			blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
-			commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
-		}
+		BlitParameters blitParms;
+		nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
+		blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
+		blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject(); // _currentRender image
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
 		renderLog.CloseBlock();
 
