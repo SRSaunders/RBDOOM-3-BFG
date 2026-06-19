@@ -482,7 +482,7 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 			GL_SelectTexture( 2 );
 			if( R_GetMSAASamples() > 1 )
 			{
-				globalImages->gbufferNormalsRoughnessResolvedImage->Bind();
+				globalImages->gbufferNormalsResolvedImage->Bind();
 			}
 			else
 			{
@@ -2634,7 +2634,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		if( R_GetMSAASamples() > 1 )
 		{
 			// SRS - resolve multisample normals to non-MSAA image needed for SSAO, ShaderPasses, and PostProcess
-			commandList->resolveTexture( globalImages->gbufferNormalsRoughnessResolvedImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(), nvrhi::AllSubresources );
+			commandList->resolveTexture( globalImages->gbufferNormalsResolvedImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(), nvrhi::AllSubresources );
 		}
 
 		// go back to main render target
@@ -5318,7 +5318,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	GL_SelectTexture( 0 );
 	if( R_GetMSAASamples() > 1 )
 	{
-		globalImages->gbufferNormalsRoughnessResolvedImage->Bind();
+		globalImages->gbufferNormalsResolvedImage->Bind();
 	}
 	else
 	{
@@ -6598,7 +6598,7 @@ void idRenderBackend::PostProcess( const void* data )
 		GL_SelectTexture( 2 );
 		if( R_GetMSAASamples() > 1 )
 		{
-			globalImages->gbufferNormalsRoughnessResolvedImage->Bind();
+			globalImages->gbufferNormalsResolvedImage->Bind();
 		}
 		else
 		{

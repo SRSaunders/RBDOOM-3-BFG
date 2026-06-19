@@ -1125,7 +1125,7 @@ void idImageManager::CreateIntrinsicImages()
 	smaaBlendImage = globalImages->ImageFromFunction( "_smaaBlend", R_SMAAImage_ResNative );
 
 	gbufferNormalsRoughnessImage = ImageFromFunction( "_currentNormals", R_GeometryBufferImage_ResNative );
-	gbufferNormalsRoughnessResolvedImage = ImageFromFunction( "_currentNormalsResolved", R_GeometryBufferImage_ResNative_Resolved );
+	gbufferNormalsResolvedImage = ImageFromFunction( "_currentNormalsResolved", R_GeometryBufferImage_ResNative_Resolved );
 
 	ambientOcclusionImage[0] = ImageFromFunction( "_ao0", R_AmbientOcclusionImage_ResNative );
 	ambientOcclusionImage[1] = ImageFromFunction( "_ao1", R_AmbientOcclusionImage_ResNative );

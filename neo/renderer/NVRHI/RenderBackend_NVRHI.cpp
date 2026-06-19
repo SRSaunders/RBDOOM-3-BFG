@@ -2014,7 +2014,7 @@ void idRenderBackend::GL_StartFrame()
 			ssaoPass = new SsaoPass(
 				deviceManager->GetDevice(),
 				&commonPasses, globalImages->hierarchicalZbufferImage->GetTextureHandle(),
-				globalImages->gbufferNormalsRoughnessResolvedImage->GetTextureHandle(),
+				globalImages->gbufferNormalsResolvedImage->GetTextureHandle(),
 				globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
 		}
 		else
