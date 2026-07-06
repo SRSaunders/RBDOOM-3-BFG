@@ -870,6 +870,7 @@ bool DeviceManager_VK::createDevice()
 	bool rayQuerySupported = false;
 	bool meshletsSupported = false;
 	bool vrsSupported = false;
+	bool samplerMinmaxSupported = false;
 	bool sync2Supported = false;
 
 	common->Printf( "Enabled Vulkan device extensions:\n" );
@@ -901,6 +902,10 @@ bool DeviceManager_VK::createDevice()
 		else if( ext == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME )
 		{
 			vrsSupported = true;
+		}
+		else if( ext == VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME )
+		{
+			samplerMinmaxSupported = true;
 		}
 		else if( ext == VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME )
 		{
@@ -1002,6 +1007,7 @@ bool DeviceManager_VK::createDevice()
 							.setTimelineSemaphore( true )
 							.setShaderSampledImageArrayNonUniformIndexing( true )
 							.setBufferDeviceAddress( bufferAddressSupported )
+							.setSamplerFilterMinmax( samplerMinmaxSupported )
 #if USE_OPTICK
 							.setHostQueryReset( true )
 #endif
