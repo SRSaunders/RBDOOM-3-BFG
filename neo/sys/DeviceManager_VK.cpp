@@ -1573,17 +1573,17 @@ void DeviceManager_VK::BeginFrame()
 				vk::Fence(),
 				&m_SwapChainIndex );
 
-		if( res != vk::Result::eErrorOutOfDateKHR )
+		if( res != vk::Result::eErrorOutOfDateKHR && res != vk::Result::eSuboptimalKHR )
 		{
 			break;
 		}
 
-		// The swap chain no longer matches the surface, e.g. after a fullscreen
-		// transition on Wayland KDE/KWin where the compositor invalidates it without a
-		// size change. A failed acquire leaves m_AcquireSemaphores.front() unsignaled,
-		// so rendering this frame would deadlock the graphics queue on the semaphore
-		// wait below. Recreate the swap chain and acquire again.
-		common->Printf( "vkAcquireNextImageKHR returned VK_ERROR_OUT_OF_DATE_KHR, recreating swap chain\n" );
+		// The swap chain no longer matches the surface, e.g. after a fullscreen transition
+		// on Wayland where the compositor invalidates or marks it suboptimal without a size
+		// change. A failed acquire (eErrorOutOfDateKHR) leaves m_AcquireSemaphores.front()
+		// unsignaled, so rendering this frame would deadlock the graphics queue on the
+		// semaphore wait below. Recreate the swap chain and acquire again.
+		common->DPrintf( "vkAcquireNextImageKHR returned %s, recreating swap chain\n", res == vk::Result::eErrorOutOfDateKHR ? "VK_ERROR_OUT_OF_DATE_KHR" : "VK_SUBOPTIMAL_KHR" );
 		BackBufferResizing();
 		ResizeSwapChain();
 		BackBufferResized();
