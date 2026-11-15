@@ -56,7 +56,8 @@ nvrhi::BindingSetHandle BindingCache::GetCachedBindingSet( const nvrhi::BindingS
 	for( int i = bindingHash.First( hash ); i != -1; i = bindingHash.Next( i ) )
 	{
 		nvrhi::BindingSetHandle bindingSet = bindingSets[i];
-		if( *bindingSet->getDesc() == desc )
+		// SRS - check for match using both description and layout attributes to support push constants
+		if( *bindingSet->getDesc() == desc && bindingSet->getLayout() == layout )
 		{
 			result = bindingSet;
 			break;
@@ -85,6 +86,7 @@ nvrhi::BindingSetHandle BindingCache::GetOrCreateBindingSet( const nvrhi::Bindin
 	for( int i = bindingHash.First( hash ); i != -1; i = bindingHash.Next( i ) )
 	{
 		nvrhi::BindingSetHandle bindingSet = bindingSets[i];
+		// SRS - check for match using both description and layout attributes to support push constants
 		if( *bindingSet->getDesc() == desc && bindingSet->getLayout() == layout )
 		{
 			result = bindingSet;
