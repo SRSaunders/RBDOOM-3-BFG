@@ -3,18 +3,18 @@ rm -rf xcode-universal
 mkdir xcode-universal
 cd xcode-universal
 
-# SRS - Determine if libsdl2 universal variant is installed via MacPorts
-SDL2_VARIANTS=$(port info --variants libsdl2 2>/dev/null)
+# SRS - Determine if libsdl2 universal variant is installed+active via MacPorts
+SDL2_VARIANTS=$(port echo libsdl2 and active 2>/dev/null)
 if [[ $SDL2_VARIANTS != *universal* ]]; then
-  echo "Error: libsdl2 universal variant is not installed via MacPorts."
+  echo "Error: libsdl2 universal variant is not installed+active via MacPorts."
   echo "Please install it using 'sudo port install libsdl2 +universal'"
   exit 1
 fi
 
-# SRS - Determine if openal-soft universal variant is installed via MacPorts
-OPENAL_VARIANTS=$(port info --variants openal-soft 2>/dev/null)
+# SRS - Determine if openal-soft universal variant is installed+active via MacPorts
+OPENAL_VARIANTS=$(port echo openal-soft and active 2>/dev/null)
 if [[ $OPENAL_VARIANTS != *universal* ]]; then
-  echo "Error: openal-soft universal variant is not installed via MacPorts."
+  echo "Error: openal-soft universal variant is not installed+active via MacPorts."
   echo "Please install it using 'sudo port install openal-soft +universal'"
   exit 1
 fi
