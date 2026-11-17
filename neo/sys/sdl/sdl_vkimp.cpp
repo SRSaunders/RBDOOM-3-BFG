@@ -468,7 +468,14 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 
 	// SRS - handle differences in WM behaviour: for macOS set position first, for linux set it last
 #if defined(__APPLE__)
-	SDL_SetWindowPosition( window, windowPosX, windowPosY );
+	// SRS - SDL hint indicating whether we are using SDL2 native or sdl2-compat + SDL3
+	static const bool sdl2_native = SDL_GetHint( "SDL3_VERSION" ) == NULL;
+
+	// SRS - on macOS set window position first if we are running with SDL2 native (legacy support)
+	if( sdl2_native )
+	{
+		SDL_SetWindowPosition( window, windowPosX, windowPosY );
+	}
 #endif
 
 	// if we're currently in fullscreen mode, we need to disable that
@@ -489,9 +496,13 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 
 	SDL_SetWindowSize( window, parms.width, parms.height );
 
-#if !defined(__APPLE__)
-	SDL_SetWindowPosition( window, windowPosX, windowPosY );
+#if defined(__APPLE__)
+	// SRS - on macOS set window position last (like linux) if we are running with sdl2-compat + SDL3
+	if( !sdl2_native )
 #endif
+	{
+		SDL_SetWindowPosition( window, windowPosX, windowPosY );
+	}
 
 	return true;
 }
